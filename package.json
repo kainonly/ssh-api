@@ -4,8 +4,9 @@
   "engines": {
     "node": ">= 8.0.0"
   },
+  "private": true,
   "scripts": {
-    "start": "node index.js"
+    "start": "webpack"
   },
   "author": {
     "name": "kain",
@@ -22,5 +23,13 @@
   },
   "dependencies": {
     "xlsx": "^0.14.3"
+  },
+  "devDependencies": {
+    "eslint": "^5.16.0",
+    "eslint-config-google": "^0.13.0",
+    "ts-loader": "^6.0.1",
+    "typescript": "^3.5.1",
+    "webpack": "^4.32.2",
+    "webpack-cli": "^3.3.2"
   }
 }
