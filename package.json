@@ -5,8 +5,7 @@
     "node": ">= 8.0.0"
   },
   "scripts": {
-    "start": "ts-node main.ts",
-    "build": "gulp"
+    "start": "node index.js"
   },
   "author": {
     "name": "kain",
@@ -23,12 +22,5 @@
   },
   "dependencies": {
     "xlsx": "^0.14.3"
-  },
-  "devDependencies": {
-    "del": "^4.1.1",
-    "gulp": "^4.0.1",
-    "gulp-typescript": "^5.0.1",
-    "ts-node": "^8.1.0",
-    "typescript": "^3.4.5"
   }
 }
