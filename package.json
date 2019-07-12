@@ -23,6 +23,7 @@
     "url": "https://github.com/kainonly/scf-xlsx/issues"
   },
   "dependencies": {
+    "cos-nodejs-sdk-v5": "^2.5.9",
     "xlsx": "^0.14.3"
   },
   "devDependencies": {
