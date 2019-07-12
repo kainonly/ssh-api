@@ -6,7 +6,7 @@
   },
   "private": true,
   "scripts": {
-    "start": "ts-node src/library.ts",
+    "start": "ts-node bootstrap.ts",
     "build": "webpack"
   },
   "author": {
