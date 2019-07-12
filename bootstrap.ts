@@ -1,5 +1,6 @@
 import { App } from './src/app';
+import { writeFileSync } from 'fs';
 
-App().then(result => {
-  console.log(result);
-});
+const result = App();
+
+console.log(result);
