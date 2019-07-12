@@ -1,5 +1,4 @@
 import { utils, WorkBook, WorkSheet, write } from 'xlsx';
-import TypedArray = NodeJS.TypedArray;
 
 const App = () => {
   const workBook: WorkBook = utils.book_new();
@@ -9,11 +8,13 @@ const App = () => {
     { A: 2, B: 3, C: 4, D: 5, E: 6, F: 7, G: 8 },
   ], { header: ['A', 'B', 'C', 'D', 'E', 'F', 'G'], skipHeader: true });
   utils.book_append_sheet(workBook, workSheet);
-  return write(workBook, {
+
+  write(workBook, {
     bookType: 'xlsx',
     bookSST: false,
-    type: 'array',
+    type: 'buffer',
   });
+
 };
 
 export { App };
