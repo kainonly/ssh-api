@@ -1,0 +1,19 @@
+{
+  "name": "kain/scf-extra",
+  "description": "Serverless Cloud Function Extra",
+  "autoload": {
+    "psr-4": {
+      "scf_extra\\": "src/"
+    }
+  },
+  "require": {
+    "phpoffice/phpspreadsheet": "^1.9"
+  },
+  "authors": [
+    {
+      "name": "kain",
+      "email": "zhangtqx@vip.qq.com"
+    }
+  ],
+  "license": "MIT"
+}
