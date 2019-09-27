@@ -9,6 +9,9 @@
   "require": {
     "phpoffice/phpspreadsheet": "^1.9"
   },
+  "require-dev": {
+    "ringcentral/psr7": "^1.2"
+  },
   "authors": [
     {
       "name": "kain",
