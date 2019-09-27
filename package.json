@@ -10,6 +10,7 @@
   "dependencies": {
     "fastify": "^2.8.0",
     "fastify-compress": "^0.11.0",
+    "fastify-pouchdb": "^1.0.0",
     "ssh2": "^0.8.5"
   },
   "devDependencies": {
