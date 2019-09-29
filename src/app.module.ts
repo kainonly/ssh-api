@@ -1,7 +1,9 @@
 import { FastifyInstance } from 'fastify';
 import { api } from './router/api';
+import { ClientService } from './common/client.service';
 
 export class AppModule {
+  private client: ClientService;
 
   static footRoot(fastify: FastifyInstance, options: any, done: any): void {
     const app = new AppModule(fastify);
@@ -21,6 +23,7 @@ export class AppModule {
    * Set Providers
    */
   setProviders() {
+    this.client = new ClientService();
   }
 
   /**
@@ -33,7 +36,7 @@ export class AppModule {
    * Set Route
    */
   setRoute() {
-    api(this.fastify);
+    api(this.fastify, this.client);
   }
 
   /**
