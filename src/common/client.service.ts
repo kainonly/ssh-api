@@ -4,8 +4,8 @@ import { Runtime } from '../types/runtime';
 import { Stream } from 'stream';
 
 export class ClientService {
-  private clientOption: ClientOption | {} = {};
-  private runtime: Runtime | {} = {};
+  private clientOption: ClientOption = {};
+  private runtime: Runtime = {};
 
   /**
    * Connection
@@ -38,7 +38,6 @@ export class ClientService {
       client.destroy();
       return true;
     } catch (e) {
-      console.error(e.message);
       return false;
     }
   }
@@ -48,7 +47,7 @@ export class ClientService {
    * @param identity
    * @param config
    */
-  put(identity: string, config: ConnectConfig) {
+  put(identity: string, config: ConnectConfig): boolean {
     return Reflect.set(this.clientOption, identity, config);
   }
 
@@ -57,7 +56,7 @@ export class ClientService {
    * @param identity
    * @param bash
    */
-  async exec(identity: string, bash: string): Promise<Stream> {
+  exec(identity: string, bash: string): Promise<Stream> {
     return new Promise(async (resolve, reject) => {
       try {
         if (!this.clientOption.hasOwnProperty(identity)) {
@@ -71,5 +70,17 @@ export class ClientService {
         reject(e.message);
       }
     });
+  }
+
+  /**
+   * Delete ssh client
+   * @param identity
+   */
+  delete(identity: string): boolean {
+    this.runtime[identity].destroy();
+    return (
+      Reflect.deleteProperty(this.runtime, identity) &&
+      Reflect.deleteProperty(this.clientOption, identity)
+    );
   }
 }
