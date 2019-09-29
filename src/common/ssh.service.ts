@@ -1,3 +1,5 @@
+import { SshClient } from '../types/ssh-client';
+
 export class SshService {
-  private client: SshService;
+  private client: SshClient;
 }
