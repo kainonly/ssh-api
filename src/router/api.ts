@@ -73,10 +73,30 @@ const api = (fastify: FastifyInstance, client: ClientService) => {
         ],
       },
     },
-  }, (request, reply) => {
-    const body = request.body;
-    console.log(body);
-    reply.send({ error: 0 });
+  }, async (request, reply) => {
+    try {
+      const body = request.body;
+      if (body.private_key) {
+        body.private_key = Buffer.from(body.private_key, 'base64');
+      }
+      const result = await client.testing({
+        host: body.host,
+        port: body.port,
+        username: body.username,
+        password: body.password,
+        privateKey: body.private_key,
+        passphrase: body.passphrase,
+      });
+      reply.send({
+        error: 0,
+        msg: result,
+      });
+    } catch (e) {
+      reply.send({
+        error: 1,
+        msg: e.message,
+      });
+    }
   });
   /**
    * Put a ssh client
