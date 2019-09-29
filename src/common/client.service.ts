@@ -1,6 +1,7 @@
 import { ClientOption } from '../types/client-option';
 import { Client, ConnectConfig } from 'ssh2';
 import { Runtime } from '../types/runtime';
+import { Stream } from 'stream';
 
 export class ClientService {
   private clientOption: ClientOption | {} = {};
@@ -51,17 +52,24 @@ export class ClientService {
     return Reflect.set(this.clientOption, identity, config);
   }
 
-  async exec(identity: string, bash: string) {
-    try {
-      if (!this.clientOption.hasOwnProperty(identity)) {
-        return false;
+  /**
+   * Remote exec
+   * @param identity
+   * @param bash
+   */
+  async exec(identity: string, bash: string): Promise<Stream> {
+    return new Promise(async (resolve, reject) => {
+      try {
+        if (!this.clientOption.hasOwnProperty(identity)) {
+          reject('client not exists');
+        }
+        const client = this.runtime[identity] = await this.connection(this.clientOption[identity]);
+        client.exec(bash, (err, channel) => {
+          resolve(channel);
+        });
+      } catch (e) {
+        reject(e.message);
       }
-      const client = this.runtime[identity] = await this.connection(this.clientOption[identity]);
-      client.exec(bash, (err, channel) => {
-
-      });
-    } catch (e) {
-      throw e;
-    }
+    });
   }
 }

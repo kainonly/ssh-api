@@ -200,9 +200,19 @@ const api = (fastify: FastifyInstance, client: ClientService) => {
         },
       },
     },
-  }, (request, reply) => {
-    reply.send({ error: 0 });
+  }, async (request, reply) => {
+    try {
+      const body = request.body;
+      const stream = await client.exec(body.identity, body.bash);
+      reply.send(stream);
+    } catch (e) {
+      reply.send({
+        error: 1,
+        msg: e,
+      });
+    }
   });
+
   /**
    * Create a tunnel
    */
