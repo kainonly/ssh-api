@@ -3,7 +3,7 @@ import { ClientService } from '../common/client.service';
 
 const api = (fastify: FastifyInstance, client: ClientService) => {
   /**
-   * Lists all ssh client
+   * Lists all ssh client status
    */
   fastify.post('/lists', {
     schema: {
@@ -17,10 +17,14 @@ const api = (fastify: FastifyInstance, client: ClientService) => {
       },
     },
   }, (request, reply) => {
-    reply.send({ error: 0 });
+    const body = request.body;
+    reply.send({
+      error: 0,
+      data: body.identity.map(v => client.get(v)),
+    });
   });
   /**
-   * Get a ssh client
+   * Get a ssh client status
    */
   fastify.post('/get', {
     schema: {
@@ -35,7 +39,10 @@ const api = (fastify: FastifyInstance, client: ClientService) => {
     },
   }, (request, reply) => {
     const body = request.body;
-    reply.send({ error: 0 });
+    reply.send({
+      error: 0,
+      data: client.get(body.identity),
+    });
   });
   /**
    * Testing a ssh client
