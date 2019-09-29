@@ -34,6 +34,7 @@ const api = (fastify: FastifyInstance, client: ClientService) => {
       },
     },
   }, (request, reply) => {
+    const body = request.body;
     reply.send({ error: 0 });
   });
   /**
