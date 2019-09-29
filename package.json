@@ -10,12 +10,10 @@
   "dependencies": {
     "fastify": "^2.8.0",
     "fastify-compress": "^0.11.0",
-    "fastify-pouchdb": "^1.0.0",
     "ssh2": "^0.8.5"
   },
   "devDependencies": {
     "@types/node": "^12.7.7",
-    "@types/pouchdb": "^6.4.0",
     "@types/ssh2": "^0.5.39",
     "@types/webpack": "^4.4.32",
     "cpy-cli": "^2.0.0",
