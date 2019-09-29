@@ -1,6 +1,7 @@
 import { FastifyInstance } from 'fastify';
+import { ClientService } from '../common/client.service';
 
-const api = (fastify: FastifyInstance) => {
+const api = (fastify: FastifyInstance, client: ClientService) => {
   /**
    * Lists all ssh client
    */
