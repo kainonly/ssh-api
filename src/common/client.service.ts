@@ -1,11 +1,10 @@
-import { ClientOption } from '../types/client-option';
-import { Client, ConnectConfig } from 'ssh2';
-import { Runtime } from '../types/runtime';
 import { Stream } from 'stream';
+import { Client, ConnectConfig } from 'ssh2';
 
 export class ClientService {
-  private clientOption: ClientOption = {};
-  private runtime: Runtime = {};
+  private clientOption: Map<string, ConnectConfig> = new Map<string, ConnectConfig>();
+  private clientRuntime: Map<string, Client> = new Map<string, Client>();
+  private clientStatus: Map<string, boolean> = new Map<string, boolean>();
 
   /**
    * Connection
@@ -43,12 +42,37 @@ export class ClientService {
   }
 
   /**
+   * Get ssh client
+   * @param identity
+   */
+  get(identity: string) {
+    if (!this.clientOption.has(identity)) {
+      return null;
+    }
+    const option = this.clientOption.get(identity);
+    return {
+      identity,
+      host: option.host,
+      port: option.port,
+      username: option.username,
+    };
+  }
+
+  /**
    * Put a ssh client
    * @param identity
    * @param config
+   * @return boolean
    */
   put(identity: string, config: ConnectConfig): boolean {
-    return Reflect.set(this.clientOption, identity, config);
+    try {
+      this.close(identity);
+      this.clientOption.set(identity, config);
+      this.clientStatus.set(identity, false);
+      return true;
+    } catch (e) {
+      return false;
+    }
   }
 
   /**
@@ -59,10 +83,16 @@ export class ClientService {
   exec(identity: string, bash: string): Promise<Stream> {
     return new Promise(async (resolve, reject) => {
       try {
-        if (!this.clientOption.hasOwnProperty(identity)) {
+        if (!this.clientOption.has(identity)) {
           reject('client not exists');
         }
-        const client = this.runtime[identity] = await this.connection(this.clientOption[identity]);
+        let client: Client;
+        if (!this.clientRuntime.has(identity)) {
+          client = await this.connection(this.clientOption.get(identity));
+          this.clientRuntime.set(identity, client);
+        } else {
+          client = this.clientRuntime.get(identity);
+        }
         client.exec(bash, (err, channel) => {
           resolve(channel);
         });
@@ -73,14 +103,25 @@ export class ClientService {
   }
 
   /**
+   * Close ssh Client
+   * @param identity
+   */
+  close(identity: string) {
+    if (this.clientRuntime.has(identity)) {
+      this.clientRuntime.get(identity).destroy();
+    }
+    return this.clientRuntime.delete(identity);
+  }
+
+  /**
    * Delete ssh client
    * @param identity
    */
   delete(identity: string): boolean {
-    this.runtime[identity].destroy();
     return (
-      Reflect.deleteProperty(this.runtime, identity) &&
-      Reflect.deleteProperty(this.clientOption, identity)
+      this.close(identity) &&
+      this.clientOption.delete(identity) &&
+      this.clientStatus.delete(identity)
     );
   }
 }
