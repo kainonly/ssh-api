@@ -79,7 +79,7 @@ const api = (fastify: FastifyInstance, client: ClientService) => {
       if (body.private_key) {
         body.private_key = Buffer.from(body.private_key, 'base64');
       }
-      const result = await client.testing({
+      const result: boolean = await client.testing({
         host: body.host,
         port: body.port,
         username: body.username,
@@ -144,7 +144,7 @@ const api = (fastify: FastifyInstance, client: ClientService) => {
       if (body.private_key) {
         body.private_key = Buffer.from(body.private_key, 'base64');
       }
-      const result = client.put(body.identity, {
+      const result: boolean = client.put(body.identity, {
         host: body.host,
         port: body.port,
         username: body.username,
@@ -165,23 +165,6 @@ const api = (fastify: FastifyInstance, client: ClientService) => {
         msg: e.message,
       });
     }
-  });
-  /**
-   * Delete a ssh client
-   */
-  fastify.post('/delete', {
-    schema: {
-      body: {
-        required: ['identity'],
-        properties: {
-          identity: {
-            type: 'string',
-          },
-        },
-      },
-    },
-  }, (request, reply) => {
-    reply.send({ error: 0 });
   });
   /**
    * A ssh client to exec
@@ -212,7 +195,31 @@ const api = (fastify: FastifyInstance, client: ClientService) => {
       });
     }
   });
-
+  /**
+   * Delete a ssh client
+   */
+  fastify.post('/delete', {
+    schema: {
+      body: {
+        required: ['identity'],
+        properties: {
+          identity: {
+            type: 'string',
+          },
+        },
+      },
+    },
+  }, (request, reply) => {
+    const body = request.body;
+    const result: boolean = client.delete(body.identity);
+    reply.send(result ? {
+      error: 0,
+      msg: 'ok',
+    } : {
+      error: 1,
+      msg: 'failed',
+    });
+  });
   /**
    * Create a tunnel
    */
