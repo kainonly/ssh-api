@@ -1,6 +1,6 @@
 {
   "name": "ssh-api",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "SSH Server Api",
   "scripts": {
     "start": "tsc-watch -p src/tsconfig.build.json --onSuccess \"node cache/main.js\"",

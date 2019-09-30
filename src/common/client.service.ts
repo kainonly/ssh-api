@@ -87,8 +87,8 @@ export class ClientService {
       port: option.port,
       username: option.username,
       connected: this.clientStatus.get(identity),
-      tunnels: this.serverOption.get(identity),
-      tunnelsListening: this.serverRuntime.get(identity).map(v => v.listening),
+      tunnels: this.serverOption.has(identity) ? this.serverOption.get(identity) : [],
+      tunnelsListening: this.serverRuntime.has(identity) ? this.serverRuntime.get(identity).map(v => v.listening) : [],
     };
   }
 
