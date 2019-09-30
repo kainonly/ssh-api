@@ -1,8 +1,8 @@
 import { FastifyInstance } from 'fastify';
 import { join } from 'path';
-import { api } from './router/api';
 import { ClientService } from './common/client.service';
 import { ConfigService } from './common/config.service';
+import { api } from './router/api';
 
 export class AppModule {
   private config: ConfigService;
@@ -13,7 +13,6 @@ export class AppModule {
     app.setProviders();
     app.onInit();
     app.setRoute();
-    app.onChange();
     done();
   }
 
@@ -49,11 +48,5 @@ export class AppModule {
    */
   setRoute() {
     api(this.fastify, this.client, this.config);
-  }
-
-  /**
-   * On Event Change
-   */
-  onChange() {
   }
 }
