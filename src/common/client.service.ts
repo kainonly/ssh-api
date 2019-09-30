@@ -7,15 +7,16 @@ export class ClientService {
   private clientStatus: Map<string, boolean> = new Map<string, boolean>();
 
   /**
-   * Connection
+   * Connect testing ssh client
    * @param config
    */
-  private connection(config: ConnectConfig): Promise<Client> {
+  async testing(config: ConnectConfig): Promise<any> {
     return new Promise((resolve, reject) => {
       let client = new Client();
       client.connect(config);
       client.on('ready', () => {
-        resolve(client);
+        resolve('ok');
+        client.destroy();
       });
       client.on('error', error => {
         reject(error);
@@ -28,17 +29,29 @@ export class ClientService {
   }
 
   /**
-   * Connect testing ssh client
-   * @param config
+   * Connection
+   * @param identity
    */
-  async testing(config: ConnectConfig): Promise<boolean> {
-    try {
-      const client = await this.connection(config);
-      client.destroy();
-      return true;
-    } catch (e) {
-      return false;
-    }
+  private connection(identity: string): Promise<Client> {
+    return new Promise((resolve, reject) => {
+      if (!this.clientOption.has(identity)) {
+        reject('client not exists');
+      }
+      const client = new Client();
+      client.connect(this.clientOption.get(identity));
+      client.on('ready', () => {
+        this.clientStatus.set(identity, true);
+        resolve(client);
+      });
+      client.on('error', error => {
+        reject(error);
+      });
+      client.on('close', () => {
+        client.removeAllListeners();
+        this.clientStatus.set(identity, false);
+      });
+      this.clientRuntime.set(identity, client);
+    });
   }
 
   /**
@@ -55,6 +68,7 @@ export class ClientService {
       host: option.host,
       port: option.port,
       username: option.username,
+      connected: this.clientStatus.get(identity),
     };
   }
 
@@ -88,12 +102,12 @@ export class ClientService {
         }
         let client: Client;
         if (!this.clientRuntime.has(identity)) {
-          client = await this.connection(this.clientOption.get(identity));
-          this.clientRuntime.set(identity, client);
+          client = await this.connection(identity);
         } else {
           client = this.clientRuntime.get(identity);
         }
         client.exec(bash, (err, channel) => {
+          this.clientStatus.set(identity, true);
           resolve(channel);
         });
       } catch (e) {

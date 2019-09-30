@@ -3,48 +3,6 @@ import { ClientService } from '../common/client.service';
 
 const api = (fastify: FastifyInstance, client: ClientService) => {
   /**
-   * Lists all ssh client status
-   */
-  fastify.post('/lists', {
-    schema: {
-      body: {
-        required: ['identity'],
-        properties: {
-          identity: {
-            type: 'array',
-          },
-        },
-      },
-    },
-  }, (request, reply) => {
-    const body = request.body;
-    reply.send({
-      error: 0,
-      data: body.identity.map(v => client.get(v)),
-    });
-  });
-  /**
-   * Get a ssh client status
-   */
-  fastify.post('/get', {
-    schema: {
-      body: {
-        required: ['identity'],
-        properties: {
-          identity: {
-            type: 'string',
-          },
-        },
-      },
-    },
-  }, (request, reply) => {
-    const body = request.body;
-    reply.send({
-      error: 0,
-      data: client.get(body.identity),
-    });
-  });
-  /**
    * Testing a ssh client
    */
   fastify.post('/testing', {
@@ -87,7 +45,7 @@ const api = (fastify: FastifyInstance, client: ClientService) => {
       if (body.private_key) {
         body.private_key = Buffer.from(body.private_key, 'base64');
       }
-      const result: boolean = await client.testing({
+      const result = await client.testing({
         host: body.host,
         port: body.port,
         username: body.username,
@@ -105,6 +63,48 @@ const api = (fastify: FastifyInstance, client: ClientService) => {
         msg: e.message,
       });
     }
+  });
+  /**
+   * Lists all ssh client status
+   */
+  fastify.post('/lists', {
+    schema: {
+      body: {
+        required: ['identity'],
+        properties: {
+          identity: {
+            type: 'array',
+          },
+        },
+      },
+    },
+  }, (request, reply) => {
+    const body = request.body;
+    reply.send({
+      error: 0,
+      data: body.identity.map(v => client.get(v)),
+    });
+  });
+  /**
+   * Get a ssh client status
+   */
+  fastify.post('/get', {
+    schema: {
+      body: {
+        required: ['identity'],
+        properties: {
+          identity: {
+            type: 'string',
+          },
+        },
+      },
+    },
+  }, (request, reply) => {
+    const body = request.body;
+    reply.send({
+      error: 0,
+      data: client.get(body.identity),
+    });
   });
   /**
    * Put a ssh client
