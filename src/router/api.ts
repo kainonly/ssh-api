@@ -1,7 +1,26 @@
 import { FastifyInstance } from 'fastify';
 import { ClientService } from '../common/client.service';
+import { ConfigService } from '../common/config.service';
 
-const api = (fastify: FastifyInstance, client: ClientService) => {
+const api = (fastify: FastifyInstance, client: ClientService, config: ConfigService) => {
+  /**
+   * temporary
+   */
+  function temporary() {
+    const data = {};
+    client.getClientOption().forEach((value, key) => {
+      data[key] = {
+        host: value.host,
+        port: value.port,
+        username: value.username,
+        password: value.password,
+        privateKey: value.privateKey.toString('base64'),
+        passphrase: value.passphrase,
+      };
+    });
+    config.set(data);
+  }
+
   /**
    * Testing a ssh client
    */
@@ -160,6 +179,7 @@ const api = (fastify: FastifyInstance, client: ClientService) => {
         privateKey: body.private_key,
         passphrase: body.passphrase,
       });
+      temporary();
       reply.send(result ? {
         error: 0,
         msg: 'ok',
