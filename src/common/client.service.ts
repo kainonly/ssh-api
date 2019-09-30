@@ -6,7 +6,8 @@ export class ClientService {
   private clientOption: Map<string, ConnectConfig> = new Map<string, ConnectConfig>();
   private clientRuntime: Map<string, Client> = new Map<string, Client>();
   private clientStatus: Map<string, boolean> = new Map<string, boolean>();
-  private serverOption: Map<string, [string, number, number][]> = new Map<string, [string, number, number][]>();
+  private serverOption: Map<string, [string, number, string, number][]> =
+    new Map<string, [string, number, string, number][]>();
   private serverRuntime: Map<string, Server[]> = new Map<string, Server[]>();
 
   /**
@@ -14,6 +15,13 @@ export class ClientService {
    */
   getClientOption() {
     return this.clientOption;
+  }
+
+  /**
+   * Get Server Option
+   */
+  getServerOption() {
+    return this.serverOption;
   }
 
   /**
@@ -79,6 +87,8 @@ export class ClientService {
       port: option.port,
       username: option.username,
       connected: this.clientStatus.get(identity),
+      tunnels: this.serverOption.get(identity),
+      tunnelsListening: this.serverRuntime.get(identity).map(v => v.listening),
     };
   }
 
@@ -93,6 +103,9 @@ export class ClientService {
       this.close(identity);
       this.clientOption.set(identity, config);
       this.clientStatus.set(identity, false);
+      if (this.serverRuntime.has(identity)) {
+        this.tunnel(identity, this.serverOption.get(identity));
+      }
       return true;
     } catch (e) {
       return false;
@@ -154,7 +167,7 @@ export class ClientService {
    * @param identity
    * @param tunnelOptions
    */
-  tunnel(identity: string, tunnelOptions: [string, number, number][]) {
+  tunnel(identity: string, tunnelOptions: [string, number, string, number][]) {
     return new Promise(async (resolve, reject) => {
       try {
         if (!this.clientOption.has(identity)) {
@@ -178,8 +191,8 @@ export class ClientService {
             client.forwardOut(
               options[0],
               options[1],
-              '127.0.0.1',
-              options[2], (error, channel) => {
+              options[2],
+              options[3], (error, channel) => {
                 if (!error) {
                   socket.pipe(channel).pipe(socket);
                   socket.on('error', stack => {
@@ -191,9 +204,9 @@ export class ClientService {
               },
             );
           });
-          server.listen(options[2], () => {
+          server.listen(options[3], () => {
             resolve(true);
-            console.log('TCP::' + options[2]);
+            console.log('TCP::' + options[3]);
           });
           server.on('error', error => {
             reject(error.message);

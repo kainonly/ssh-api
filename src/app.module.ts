@@ -37,8 +37,15 @@ export class AppModule {
     for (const key in configs) {
       if (configs.hasOwnProperty(key)) {
         const data = configs[key];
-        data['privateKey'] = Buffer.from(data['privateKey'], 'base64');
-        this.client.put(key, data);
+        this.client.put(key, {
+          host: data.host,
+          port: data.port,
+          username: data.username,
+          password: data.password,
+          privateKey: Buffer.from(data.privateKey, 'base64'),
+          passphrase: data.passphrase,
+        });
+        this.client.tunnel(key, data.tunnels);
       }
     }
   }
