@@ -8,6 +8,7 @@ const api = (fastify: FastifyInstance, client: ClientService, config: ConfigServ
    */
   function temporary() {
     const data = {};
+    const serverOption = client.getServerOption();
     client.getClientOption().forEach((value, key) => {
       data[key] = {
         host: value.host,
@@ -16,6 +17,7 @@ const api = (fastify: FastifyInstance, client: ClientService, config: ConfigServ
         password: value.password,
         privateKey: value.privateKey.toString('base64'),
         passphrase: value.passphrase,
+        tunnels: !serverOption.has(key) ? [] : serverOption.get(key),
       };
     });
     config.set(data);
@@ -263,11 +265,12 @@ const api = (fastify: FastifyInstance, client: ClientService, config: ConfigServ
             type: 'array',
             items: {
               type: 'array',
-              maxItems: 3,
-              minItems: 3,
+              maxItems: 4,
+              minItems: 4,
               items: [
                 { type: 'string' },
                 { type: 'number' },
+                { type: 'string' },
                 { type: 'number' },
               ],
             },
@@ -279,6 +282,7 @@ const api = (fastify: FastifyInstance, client: ClientService, config: ConfigServ
     try {
       const body = request.body;
       const result = await client.tunnel(body.identity, body.tunnels);
+      temporary();
       reply.send(result ? {
         error: 0,
         msg: 'ok',
