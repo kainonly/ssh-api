@@ -34,6 +34,14 @@ export class AppModule {
    * Init
    */
   onInit() {
+    const configs: any = this.config.get();
+    for (const key in configs) {
+      if (configs.hasOwnProperty(key)) {
+        const data = configs[key];
+        data['privateKey'] = Buffer.from(data['privateKey'], 'base64');
+        this.client.put(key, data);
+      }
+    }
   }
 
   /**
