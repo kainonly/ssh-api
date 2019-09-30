@@ -1,10 +1,13 @@
 import { Stream } from 'stream';
 import { Client, ConnectConfig } from 'ssh2';
+import { Server } from 'net';
 
 export class ClientService {
   private clientOption: Map<string, ConnectConfig> = new Map<string, ConnectConfig>();
   private clientRuntime: Map<string, Client> = new Map<string, Client>();
   private clientStatus: Map<string, boolean> = new Map<string, boolean>();
+  private serverOption: Map<string, any[]> = new Map<string, any[]>();
+  private serverRuntime: Map<string, Server> = new Map<string, Server>();
 
   /**
    * Get Client Option
@@ -144,5 +147,9 @@ export class ClientService {
       this.clientOption.delete(identity) &&
       this.clientStatus.delete(identity)
     );
+  }
+
+  tunnel() {
+
   }
 }

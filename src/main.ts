@@ -4,7 +4,7 @@ import * as fastifyCompress from 'fastify-compress';
 import { AppModule } from './app.module';
 
 const server: fastify.FastifyInstance = fastify({
-  logger: false,
+  logger: true,
 });
 server.register(fastifyCompress);
 server.register(AppModule.footRoot);
