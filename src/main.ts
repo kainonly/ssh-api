@@ -1,10 +1,11 @@
 import * as fastify from 'fastify';
 import * as fastifyCompress from 'fastify-compress';
+import { env } from 'process';
 
 import { AppModule } from './app.module';
 
 const server: fastify.FastifyInstance = fastify({
-  logger: true,
+  logger: env.LOGGER ? env.LOGGER : false,
 });
 server.register(fastifyCompress);
 server.register(AppModule.footRoot);
