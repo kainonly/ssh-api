@@ -1,13 +1,13 @@
 import { Stream } from 'stream';
 import { Client, ConnectConfig } from 'ssh2';
-import { Server } from 'net';
+import { createServer, Server } from 'net';
 
 export class ClientService {
   private clientOption: Map<string, ConnectConfig> = new Map<string, ConnectConfig>();
   private clientRuntime: Map<string, Client> = new Map<string, Client>();
   private clientStatus: Map<string, boolean> = new Map<string, boolean>();
-  private serverOption: Map<string, any[]> = new Map<string, any[]>();
-  private serverRuntime: Map<string, Server> = new Map<string, Server>();
+  private serverOption: Map<string, [string, number, number][]> = new Map<string, [string, number, number][]>();
+  private serverRuntime: Map<string, Server[]> = new Map<string, Server[]>();
 
   /**
    * Get Client Option
@@ -149,7 +149,62 @@ export class ClientService {
     );
   }
 
-  tunnel() {
-
+  /**
+   * Set tunnel
+   * @param identity
+   * @param tunnelOptions
+   */
+  tunnel(identity: string, tunnelOptions: [string, number, number][]) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        if (!this.clientOption.has(identity)) {
+          reject('client not exists');
+        }
+        let client: Client;
+        if (!this.clientRuntime.has(identity)) {
+          client = await this.connection(identity);
+        } else {
+          client = this.clientRuntime.get(identity);
+        }
+        if (this.serverRuntime.has(identity)) {
+          for (const server of this.serverRuntime.get(identity)) {
+            server.close();
+          }
+          this.serverRuntime.delete(identity);
+        }
+        const serverLists = [];
+        for (const options of tunnelOptions) {
+          const server = createServer(socket => {
+            client.forwardOut(
+              options[0],
+              options[1],
+              '127.0.0.1',
+              options[2], (error, channel) => {
+                if (!error) {
+                  socket.pipe(channel).pipe(socket);
+                  socket.on('error', stack => {
+                    console.log(stack);
+                  });
+                } else {
+                  reject(error.message);
+                }
+              },
+            );
+          });
+          server.listen(options[2], () => {
+            resolve(true);
+            console.log('TCP::' + options[2]);
+          });
+          server.on('error', error => {
+            reject(error.message);
+          });
+          serverLists.push(server);
+        }
+        this.serverRuntime.set(identity, serverLists);
+        this.serverOption.set(identity, tunnelOptions);
+      } catch (e) {
+        reject(e.message);
+      }
+    });
   }
 }
