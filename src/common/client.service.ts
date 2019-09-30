@@ -7,6 +7,13 @@ export class ClientService {
   private clientStatus: Map<string, boolean> = new Map<string, boolean>();
 
   /**
+   * Get Client Option
+   */
+  getClientOption() {
+    return this.clientOption;
+  }
+
+  /**
    * Connect testing ssh client
    * @param config
    */

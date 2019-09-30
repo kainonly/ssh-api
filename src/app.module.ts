@@ -1,8 +1,11 @@
 import { FastifyInstance } from 'fastify';
+import { join } from 'path';
 import { api } from './router/api';
 import { ClientService } from './common/client.service';
+import { ConfigService } from './common/config.service';
 
 export class AppModule {
+  private config: ConfigService;
   private client: ClientService;
 
   static footRoot(fastify: FastifyInstance, options: any, done: any): void {
@@ -23,6 +26,7 @@ export class AppModule {
    * Set Providers
    */
   setProviders() {
+    this.config = new ConfigService(join(__dirname, 'config.json'));
     this.client = new ClientService();
   }
 
@@ -36,7 +40,7 @@ export class AppModule {
    * Set Route
    */
   setRoute() {
-    api(this.fastify, this.client);
+    api(this.fastify, this.client, this.config);
   }
 
   /**
