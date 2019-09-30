@@ -13,10 +13,17 @@ export class ConfigService {
     }
   }
 
+  /**
+   * Get config data
+   */
   get() {
     return this.config;
   }
 
+  /**
+   * Set config data
+   * @param data
+   */
   set(data: any) {
     writeFileSync(this.file, JSON.stringify(data));
     this.config = data;
