@@ -249,67 +249,49 @@ const api = (fastify: FastifyInstance, client: ClientService, config: ConfigServ
     });
   });
   /**
-   * Create a tunnel
+   * Set tunnels of ssh client
    */
-  fastify.post('/bind', {
+  fastify.post('/tunnels', {
     schema: {
       body: {
-        required: ['identity', 'scr_ip', 'src_port', 'dst_port'],
+        required: ['identity', 'tunnels'],
         properties: {
           identity: {
             type: 'string',
           },
-          src_ip: {
-            type: 'string',
-          },
-          src_port: {
-            type: 'number',
-          },
-          dst_port: {
-            type: 'number',
-          },
-        },
-      },
-    },
-  }, (request, reply) => {
-    reply.send({ error: 0 });
-  });
-  /**
-   * Delete a tunnel
-   */
-  fastify.post('/unbind', {
-    schema: {
-      body: {
-        required: ['identity', 'dst_port'],
-        properties: {
-          identity: {
-            type: 'string',
-          },
-          dst_port: {
-            type: 'number',
+          tunnels: {
+            type: 'array',
+            items: {
+              type: 'array',
+              maxItems: 3,
+              minItems: 3,
+              items: [
+                { type: 'string' },
+                { type: 'number' },
+                { type: 'number' },
+              ],
+            },
           },
         },
       },
     },
-  }, (request, reply) => {
-    reply.send({ error: 0 });
-  });
-  /**
-   * Get tunnels of ssh client
-   */
-  fastify.post('/listen', {
-    schema: {
-      body: {
-        required: ['identity'],
-        properties: {
-          identity: {
-            type: 'string',
-          },
-        },
-      },
-    },
-  }, (request, reply) => {
-    reply.send({ error: 0 });
+  }, async (request, reply) => {
+    try {
+      const body = request.body;
+      const result = await client.tunnel(body.identity, body.tunnels);
+      reply.send(result ? {
+        error: 0,
+        msg: 'ok',
+      } : {
+        error: 1,
+        msg: 'failed',
+      });
+    } catch (e) {
+      reply.send({
+        error: 1,
+        msg: e,
+      });
+    }
   });
 };
 
