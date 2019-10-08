@@ -25,7 +25,7 @@ export class AppModule {
    * Set Providers
    */
   setProviders() {
-    this.config = new ConfigService(join(__dirname, 'data', 'config.json'));
+    this.config = new ConfigService(join(__dirname, 'config.json'));
     this.client = new ClientService();
   }
 
