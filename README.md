@@ -19,7 +19,7 @@ example
 ```yml
 version: '3.7'
 services:
-  schedule:
+  ssh:
     image: kainonly/ssh-api
     restart: always
     volumes: 
