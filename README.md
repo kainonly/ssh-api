@@ -195,6 +195,11 @@ Private key connect
 }
 ```
 
+#### Get All Identity
+
+- url `/all`
+- method `POST`
+
 #### Lists SSH
 
 - url `/lists`
@@ -247,7 +252,7 @@ Private key connect
 
 #### Set Tunnel
 
-- url `/get`
+- url `/tunnels`
 - method `POST`
 - body
   - **identity** `string` ssh identity code

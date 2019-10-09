@@ -24,6 +24,15 @@ const api = (fastify: FastifyInstance, client: ClientService, config: ConfigServ
   }
 
   /**
+   * get all identity
+   */
+  fastify.post('/all', async (request, reply) => {
+    reply.send({
+      error: 0,
+      data: [...client.getClientOption().keys()],
+    });
+  });
+  /**
    * Testing a ssh client
    */
   fastify.post('/testing', {
