@@ -1,7 +1,5 @@
 FROM alpine:edge
 
-ENV LOGGER=false
-
 COPY dist /app
 WORKDIR /app
 
@@ -13,4 +11,4 @@ RUN npm install --production \
 
 EXPOSE 3000
 
-CMD [ "node", "./ssh-api.js" ]
+CMD [ "node", "app.js" ]
