@@ -11,4 +11,6 @@ RUN npm install --production \
 
 EXPOSE 3000
 
+VOLUME [ "app/data" ]
+
 CMD [ "node", "app.js" ]

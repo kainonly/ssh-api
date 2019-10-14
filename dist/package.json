@@ -4,7 +4,7 @@
   "scripts": {
     "start": "tsc-watch -p src/tsconfig.build.json --onSuccess \"node cache/main.js\"",
     "build": "rimraf dist && webpack && cpy package.json dist",
-    "prod": "node dist/ssh-api.js"
+    "prod": "node dist/app.js"
   },
   "dependencies": {
     "fastify": "^2.8.0",

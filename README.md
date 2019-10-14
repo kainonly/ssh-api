@@ -23,7 +23,7 @@ services:
     image: kainonly/ssh-api
     restart: always
     volumes: 
-      - ./app:/app
+      - ./data:/app/data
     ports:
       - 3000:3000
 ```
