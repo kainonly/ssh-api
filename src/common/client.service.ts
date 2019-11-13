@@ -143,23 +143,21 @@ export class ClientService {
    * Close ssh Client
    * @param identity
    */
-  close(identity: string) {
+  close(identity: string): void {
     if (this.clientRuntime.has(identity)) {
       this.clientRuntime.get(identity).destroy();
     }
-    return this.clientRuntime.delete(identity);
+    this.clientRuntime.delete(identity);
   }
 
   /**
    * Delete ssh client
    * @param identity
    */
-  delete(identity: string): boolean {
-    return (
-      this.close(identity) &&
-      this.clientOption.delete(identity) &&
-      this.clientStatus.delete(identity)
-    );
+  delete(identity: string): void {
+    this.close(identity);
+    this.clientOption.delete(identity);
+    this.clientStatus.delete(identity);
   }
 
   /**

@@ -250,13 +250,11 @@ const api = (fastify: FastifyInstance, client: ClientService, config: ConfigServ
     },
   }, (request, reply) => {
     const body = request.body;
-    const result: boolean = client.delete(body.identity);
-    reply.send(result ? {
+    client.delete(body.identity);
+    temporary();
+    reply.send({
       error: 0,
       msg: 'ok',
-    } : {
-      error: 1,
-      msg: 'failed',
     });
   });
   /**
