@@ -15,6 +15,7 @@ func main() {
 	app.Use(logger.New())
 
 	provider := common.New()
+
 	route := router.New(provider)
 	app.Post("testing", route.TestingRoute)
 	app.Post("put", route.PutRoute)
@@ -24,5 +25,6 @@ func main() {
 	app.Post("all", route.AllRoute)
 	app.Post("lists", route.ListsRoute)
 	app.Post("tunnels", route.TunnelsRoute)
+
 	app.Run(iris.Addr("127.0.0.1:3000"), iris.WithoutServerError(iris.ErrServerClosed))
 }

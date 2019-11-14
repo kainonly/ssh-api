@@ -6,5 +6,7 @@ type Common struct {
 }
 
 func New() *Common {
-	return &Common{}
+	common := Common{}
+	common.Config.init()
+	return &common
 }
