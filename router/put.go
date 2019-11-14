@@ -5,7 +5,8 @@ import (
 	"github.com/kataras/iris/v12"
 )
 
-type testingBody struct {
+type putBody struct {
+	Identity   string `json:"identity" validate:"required"`
 	Host       string `json:"host" validate:"required,hostname|ip"`
 	Port       uint   `json:"port" validate:"required,numeric"`
 	Username   string `json:"username" validate:"required,alphanum"`
@@ -14,8 +15,8 @@ type testingBody struct {
 	Passphrase string `json:"passphrase"`
 }
 
-func (app *Router) TestingRoute(ctx iris.Context) {
-	var body testingBody
+func (app *Router) PutRoute(ctx iris.Context) {
+	var body putBody
 	ctx.ReadJSON(&body)
 	validate := validator.New()
 	if err := validate.Struct(body); err != nil {
