@@ -1,8 +1,10 @@
 package router
 
 import (
+	"encoding/base64"
 	"github.com/go-playground/validator/v10"
 	"github.com/kataras/iris/v12"
+	"ssh-api/common"
 )
 
 type testingBody struct {
@@ -25,6 +27,13 @@ func (app *Router) TestingRoute(ctx iris.Context) {
 		})
 		return
 	}
+	data, _ := base64.StdEncoding.DecodeString(body.PrivateKey)
+	client, _ := app.Client.Testing(common.TestingOption{
+		Host:     body.Host,
+		Port:     body.Port,
+		Username: body.Username,
+		Key:      data,
+	})
 	//
 	ctx.JSON(iris.Map{
 		"error": 0,
