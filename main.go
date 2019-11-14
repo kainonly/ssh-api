@@ -4,6 +4,7 @@ import (
 	"github.com/kataras/iris/v12"
 	"github.com/kataras/iris/v12/middleware/logger"
 	"github.com/kataras/iris/v12/middleware/recover"
+	"ssh-api/common"
 	"ssh-api/router"
 )
 
@@ -13,8 +14,8 @@ func main() {
 	app.Use(recover.New())
 	app.Use(logger.New())
 
-	routes := new(router.Router)
-	app.Post("testing", routes.TestingRoute)
-
+	provider := common.New()
+	route := router.New(provider)
+	app.Post("testing", route.TestingRoute)
 	app.Run(iris.Addr("127.0.0.1:3000"), iris.WithoutServerError(iris.ErrServerClosed))
 }
