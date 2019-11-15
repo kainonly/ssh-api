@@ -10,7 +10,7 @@ func TestSimple(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	c := new(common.Client)
+	c := new(container.Client)
 	client, err := c.Testing(option)
 	if err != nil {
 		t.Error(err)

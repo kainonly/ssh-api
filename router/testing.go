@@ -4,7 +4,7 @@ import (
 	"encoding/base64"
 	"github.com/go-playground/validator/v10"
 	"github.com/kataras/iris/v12"
-	"ssh-api/common"
+	"ssh-api/service"
 )
 
 type testingBody struct {
@@ -16,7 +16,7 @@ type testingBody struct {
 	Passphrase string `json:"passphrase"`
 }
 
-func (app *Router) TestingRoute(ctx iris.Context) {
+func (app *application) TestingRoute(ctx iris.Context) {
 	var body testingBody
 	ctx.ReadJSON(&body)
 	validate := validator.New()
@@ -35,7 +35,7 @@ func (app *Router) TestingRoute(ctx iris.Context) {
 		})
 		return
 	}
-	client, err := app.Client.Testing(common.ConnectOption{
+	client, err := app.client.Testing(service.ConnectOption{
 		Host:       body.Host,
 		Port:       body.Port,
 		Username:   body.Username,

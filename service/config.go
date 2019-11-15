@@ -1,8 +1,16 @@
-package common
+package service
 
 type Config struct {
 	filePath string
 	value    map[string]SSHOption
+}
+
+func NewConfig() *Config {
+	config := Config{}
+	if config.value == nil {
+		config.value = make(map[string]SSHOption)
+	}
+	return &config
 }
 
 type SSHOption struct {
@@ -12,12 +20,6 @@ type SSHOption struct {
 	Password   string `json:"password"`
 	PrivateKey string `json:"private_key"`
 	Passphrase string `json:"passphrase"`
-}
-
-func (config *Config) init() {
-	if config.value == nil {
-		config.value = make(map[string]SSHOption)
-	}
 }
 
 func (config *Config) Get(identity string) (exists bool, options SSHOption) {

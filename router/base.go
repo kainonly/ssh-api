@@ -1,15 +1,13 @@
 package router
 
-import "ssh-api/common"
+import "ssh-api/service"
 
-type Router struct {
-	common.Config
-	common.Client
+type application struct {
+	client service.Client
 }
 
-func New(common *common.Common) *Router {
-	return &Router{
-		common.Config,
-		common.Client,
+func Container(client *service.Client) *application {
+	return &application{
+		*client,
 	}
 }

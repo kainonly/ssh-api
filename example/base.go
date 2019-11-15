@@ -16,7 +16,7 @@ type DebugOption struct {
 	PassPhrase string `json:"passphrase"`
 }
 
-func GetOption(filename string) (option common.ConnectOption, err error) {
+func GetOption(filename string) (option container.ConnectOption, err error) {
 	debug, err := ioutil.ReadFile(filename)
 	if err != nil {
 		return
@@ -29,7 +29,7 @@ func GetOption(filename string) (option common.ConnectOption, err error) {
 	if err != nil {
 		return
 	}
-	option = common.ConnectOption{
+	option = container.ConnectOption{
 		Host:       debugOption.Host,
 		Port:       debugOption.Port,
 		Username:   debugOption.Username,
