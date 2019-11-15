@@ -78,11 +78,12 @@ func (c *Client) connect(option ConnectOption) (client *ssh.Client, err error) {
 	return
 }
 
-// SSH Connect Testing
+// Testing SSH Connect
 func (c *Client) Testing(option ConnectOption) (client *ssh.Client, err error) {
 	return c.connect(option)
 }
 
+// Put SSH Connect
 func (c *Client) Put(identity string, option ConnectOption) (client *ssh.Client, err error) {
 	client, err = c.connect(option)
 	if err != nil {
@@ -101,6 +102,7 @@ type GetResult struct {
 	Connected bool   `json:"connected"`
 }
 
+// Get SSH Connect Information
 func (c *Client) Get(identity string) (exists bool, result GetResult) {
 	exists = c.options[identity] != (&ConnectOption{})
 	option := c.options[identity]
