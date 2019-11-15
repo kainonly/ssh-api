@@ -2,6 +2,7 @@ package common
 
 import (
 	"golang.org/x/crypto/ssh"
+	"strconv"
 )
 
 type Client struct{}
@@ -22,6 +23,10 @@ func (_ *Client) Testing(option TestingOption) (client *ssh.Client, err error) {
 		},
 		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
 	}
-	client, err = ssh.Dial("tcp", option.Host, config)
+	client, err = ssh.Dial(
+		"tcp",
+		option.Host+":"+strconv.Itoa(int(option.Port)),
+		config,
+	)
 	return
 }
