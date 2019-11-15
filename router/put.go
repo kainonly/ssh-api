@@ -3,6 +3,7 @@ package router
 import (
 	"github.com/go-playground/validator/v10"
 	"github.com/kataras/iris/v12"
+	"ssh-api/service"
 )
 
 type putBody struct {
@@ -26,7 +27,15 @@ func (app *application) PutRoute(ctx iris.Context) {
 		})
 		return
 	}
-	//
+	app.client.Put(body.Identity, service.ConnectOption{
+		Host:       "",
+		Port:       0,
+		Username:   "",
+		Password:   "",
+		Key:        nil,
+		PassPhrase: nil,
+	})
+
 	ctx.JSON(iris.Map{
 		"error": 0,
 		"msg":   "ok",
