@@ -1,4 +1,4 @@
-package common
+package service
 
 import (
 	"golang.org/x/crypto/ssh"
@@ -6,8 +6,19 @@ import (
 )
 
 type Client struct {
-	Options map[string]*ConnectOption
-	Runtime map[string]*ssh.Client
+	options map[string]*ConnectOption
+	runtime map[string]*ssh.Client
+}
+
+func InjectClient() *Client {
+	client := Client{}
+	if client.options == nil {
+		client.options = make(map[string]*ConnectOption)
+	}
+	if client.runtime == nil {
+		client.runtime = make(map[string]*ssh.Client)
+	}
+	return &client
 }
 
 type ConnectOption struct {
@@ -77,8 +88,8 @@ func (c *Client) Put(identity string, option ConnectOption) (client *ssh.Client,
 	if err != nil {
 		return
 	}
-	c.Options[identity] = &option
-	c.Runtime[identity] = client
+	c.options[identity] = &option
+	c.runtime[identity] = client
 	return
 }
 
@@ -91,8 +102,8 @@ type GetResult struct {
 }
 
 func (c *Client) Get(identity string) (exists bool, result GetResult) {
-	exists = c.Options[identity] != (&ConnectOption{})
-	option := c.Options[identity]
+	exists = c.options[identity] != (&ConnectOption{})
+	option := c.options[identity]
 	result = GetResult{
 		Identity:  identity,
 		Host:      option.Host,

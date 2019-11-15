@@ -3,7 +3,6 @@ package router
 import (
 	"github.com/go-playground/validator/v10"
 	"github.com/kataras/iris/v12"
-	"ssh-api/common"
 )
 
 type putBody struct {
@@ -16,7 +15,7 @@ type putBody struct {
 	Passphrase string `json:"passphrase"`
 }
 
-func (app *Router) PutRoute(ctx iris.Context) {
+func (app *application) PutRoute(ctx iris.Context) {
 	var body putBody
 	ctx.ReadJSON(&body)
 	validate := validator.New()
@@ -27,14 +26,6 @@ func (app *Router) PutRoute(ctx iris.Context) {
 		})
 		return
 	}
-	app.Config.Set(body.Identity, &common.SSHOption{
-		Host:       body.Host,
-		Port:       body.Port,
-		Username:   body.Username,
-		Password:   body.Password,
-		PrivateKey: body.PrivateKey,
-		Passphrase: body.Passphrase,
-	})
 	//
 	ctx.JSON(iris.Map{
 		"error": 0,

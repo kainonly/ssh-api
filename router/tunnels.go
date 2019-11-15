@@ -10,7 +10,7 @@ type tunnelsBody struct {
 	Tunnels  [][]string `json:"tunnels" validate:"required"`
 }
 
-func (app *Router) TunnelsRoute(ctx iris.Context) {
+func (app *application) TunnelsRoute(ctx iris.Context) {
 	var body tunnelsBody
 	ctx.ReadJSON(&body)
 	validate := validator.New()

@@ -9,7 +9,7 @@ type listsBody struct {
 	Identity []string `json:"identity" validate:"required"`
 }
 
-func (app *Router) ListsRoute(ctx iris.Context) {
+func (app *application) ListsRoute(ctx iris.Context) {
 	var body listsBody
 	ctx.ReadJSON(&body)
 	validate := validator.New()

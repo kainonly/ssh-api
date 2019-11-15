@@ -4,7 +4,7 @@ import (
 	"github.com/kataras/iris/v12"
 )
 
-func (app *Router) AllRoute(ctx iris.Context) {
+func (app *application) AllRoute(ctx iris.Context) {
 	//
 	ctx.JSON(iris.Map{
 		"error": 0,

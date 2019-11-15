@@ -10,7 +10,7 @@ type execBody struct {
 	Bash     string `json:"bash" validate:"required"`
 }
 
-func (app *Router) ExecRoute(ctx iris.Context) {
+func (app *application) ExecRoute(ctx iris.Context) {
 	var body execBody
 	ctx.ReadJSON(&body)
 	validate := validator.New()

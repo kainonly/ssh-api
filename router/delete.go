@@ -9,7 +9,7 @@ type deleteBody struct {
 	Identity string `json:"identity" validate:"required"`
 }
 
-func (app *Router) DeleteRoute(ctx iris.Context) {
+func (app *application) DeleteRoute(ctx iris.Context) {
 	var body deleteBody
 	ctx.ReadJSON(&body)
 	validate := validator.New()
