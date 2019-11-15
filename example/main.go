@@ -2,7 +2,7 @@ package main
 
 import (
 	"log"
-	"ssh-api/common"
+	"ssh-api/service"
 )
 
 func main() {
@@ -10,7 +10,7 @@ func main() {
 	if err != nil {
 		log.Fatalln(err)
 	}
-	c := new(container.Client)
+	c := new(service.Client)
 	client, err := c.Testing(option)
 	if err != nil {
 		log.Fatalln(err)
