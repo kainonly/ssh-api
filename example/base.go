@@ -4,7 +4,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"io/ioutil"
-	"ssh-api/common"
+	"ssh-api/service"
 )
 
 type DebugOption struct {
@@ -16,7 +16,7 @@ type DebugOption struct {
 	PassPhrase string `json:"passphrase"`
 }
 
-func GetOption(filename string) (option container.ConnectOption, err error) {
+func GetOption(filename string) (option service.ConnectOption, err error) {
 	debug, err := ioutil.ReadFile(filename)
 	if err != nil {
 		return
@@ -29,7 +29,7 @@ func GetOption(filename string) (option container.ConnectOption, err error) {
 	if err != nil {
 		return
 	}
-	option = container.ConnectOption{
+	option = service.ConnectOption{
 		Host:       debugOption.Host,
 		Port:       debugOption.Port,
 		Username:   debugOption.Username,
