@@ -6,11 +6,7 @@ import (
 )
 
 type Client struct {
-	Options map[string]struct {
-		Host     string
-		Port     uint
-		Username string
-	}
+	Options map[string]*ConnectOption
 	Runtime map[string]*ssh.Client
 }
 
@@ -56,8 +52,7 @@ func (c *Client) authMethod(option ConnectOption) (auth []ssh.AuthMethod, err er
 	return
 }
 
-// SSH Connect Testing
-func (c *Client) Testing(option ConnectOption) (client *ssh.Client, err error) {
+func (c *Client) connect(option ConnectOption) (client *ssh.Client, err error) {
 	auth, err := c.authMethod(option)
 	if err != nil {
 		return
@@ -72,10 +67,38 @@ func (c *Client) Testing(option ConnectOption) (client *ssh.Client, err error) {
 	return
 }
 
-func (c *Client) Put(identity string, option ConnectOption) {
-
+// SSH Connect Testing
+func (c *Client) Testing(option ConnectOption) (client *ssh.Client, err error) {
+	return c.connect(option)
 }
 
-func (c *Client) Get(identity string) (exists bool, result interface{}) {
-	return true, nil
+func (c *Client) Put(identity string, option ConnectOption) (client *ssh.Client, err error) {
+	client, err = c.connect(option)
+	if err != nil {
+		return
+	}
+	c.Options[identity] = &option
+	c.Runtime[identity] = client
+	return
+}
+
+type GetResult struct {
+	Identity  string `json:"identity"`
+	Host      string `json:"host"`
+	Port      uint   `json:"port"`
+	Username  string `json:"username"`
+	Connected bool   `json:"connected"`
+}
+
+func (c *Client) Get(identity string) (exists bool, result GetResult) {
+	exists = c.Options[identity] != (&ConnectOption{})
+	option := c.Options[identity]
+	result = GetResult{
+		Identity:  identity,
+		Host:      option.Host,
+		Port:      option.Port,
+		Username:  option.Username,
+		Connected: true,
+	}
+	return
 }
