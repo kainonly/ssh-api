@@ -27,14 +27,28 @@ func (app *Router) TestingRoute(ctx iris.Context) {
 		})
 		return
 	}
-	data, _ := base64.StdEncoding.DecodeString(body.PrivateKey)
-	client, _ := app.Client.Testing(common.TestingOption{
+	data, err := base64.StdEncoding.DecodeString(body.PrivateKey)
+	if err != nil {
+		ctx.JSON(iris.Map{
+			"error": 1,
+			"msg":   err.Error(),
+		})
+		return
+	}
+	client, err := app.Client.Testing(common.TestingOption{
 		Host:     body.Host,
 		Port:     body.Port,
 		Username: body.Username,
 		Key:      data,
 	})
-	//
+	if err != nil {
+		ctx.JSON(iris.Map{
+			"error": 1,
+			"msg":   err.Error(),
+		})
+		return
+	}
+	defer client.Close()
 	ctx.JSON(iris.Map{
 		"error": 0,
 		"msg":   "ok",
