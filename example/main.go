@@ -7,6 +7,11 @@ import (
 	"ssh-api/service"
 )
 
+func NewLocalListener(address string) (listener net.Listener, err error) {
+	listener, err = net.Listen("tcp", address)
+	return
+}
+
 func main() {
 	option, err := GetOption("./debug.json")
 	if err != nil {
@@ -14,16 +19,17 @@ func main() {
 	}
 	c := new(service.Client)
 	client, err := c.Testing(option)
-
 	if err != nil {
 		log.Fatalln(err)
 	}
 	defer client.Close()
-	listener, err := net.Listen("tcp", "127.0.0.1:5601")
+
+	listener, err := NewLocalListener(":5601")
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalln(err)
 	}
 	defer listener.Close()
+
 	for {
 		local, err := listener.Accept()
 		if err != nil {
@@ -35,7 +41,6 @@ func main() {
 			if err != nil {
 				log.Fatal(err)
 			}
-			println(remote)
 			go func() {
 				_, err := io.Copy(local, remote)
 				if err != nil {

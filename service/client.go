@@ -6,18 +6,14 @@ import (
 )
 
 type Client struct {
-	options map[string]*ConnectOption
-	runtime map[string]*ssh.Client
+	options   map[string]*ConnectOption
+	sshClient map[string]*ssh.Client
 }
 
 func InjectClient() *Client {
 	client := Client{}
-	if client.options == nil {
-		client.options = make(map[string]*ConnectOption)
-	}
-	if client.runtime == nil {
-		client.runtime = make(map[string]*ssh.Client)
-	}
+	client.options = make(map[string]*ConnectOption)
+	client.sshClient = make(map[string]*ssh.Client)
 	return &client
 }
 
@@ -90,7 +86,7 @@ func (c *Client) Put(identity string, option ConnectOption) (client *ssh.Client,
 		return
 	}
 	c.options[identity] = &option
-	c.runtime[identity] = client
+	c.sshClient[identity] = client
 	return
 }
 
