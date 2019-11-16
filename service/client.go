@@ -59,6 +59,7 @@ func (c *Client) authMethod(option ConnectOption) (auth []ssh.AuthMethod, err er
 	return
 }
 
+// Connect SSH
 func (c *Client) connect(option ConnectOption) (client *ssh.Client, err error) {
 	auth, err := c.authMethod(option)
 	if err != nil {
