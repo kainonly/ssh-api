@@ -21,9 +21,16 @@ func (app *application) ExecRoute(ctx iris.Context) {
 		})
 		return
 	}
-	//
-	ctx.JSON(iris.Map{
-		"error": 0,
-		"msg":   "ok",
-	})
+	output, err := app.client.Exec(body.Identity, body.Bash)
+	if err == nil {
+		ctx.JSON(iris.Map{
+			"error": 0,
+			"data":  string(output),
+		})
+	} else {
+		ctx.JSON(iris.Map{
+			"error": 1,
+			"msg":   err.Error(),
+		})
+	}
 }
