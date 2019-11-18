@@ -27,7 +27,7 @@ func (app *application) ListsRoute(ctx iris.Context) {
 		if err != nil {
 			ctx.JSON(iris.Map{
 				"error": 1,
-				"msg":   err.Error(),
+				"msg":   identity + ":" + err.Error(),
 			})
 			return
 		}

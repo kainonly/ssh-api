@@ -20,9 +20,17 @@ func (app *application) DeleteRoute(ctx iris.Context) {
 		})
 		return
 	}
-	//
-	ctx.JSON(iris.Map{
-		"error": 0,
-		"msg":   "ok",
-	})
+	err := app.client.Delete(body.Identity)
+	if err == nil {
+		ctx.JSON(iris.Map{
+			"error": 0,
+			"msg":   "ok",
+		})
+	} else {
+		ctx.JSON(iris.Map{
+			"error": 1,
+			"msg":   err.Error(),
+		})
+	}
+
 }
