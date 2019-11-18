@@ -113,3 +113,27 @@ func TestAll(t *testing.T) {
 	}
 	println(keys)
 }
+
+func TestLists(t *testing.T) {
+	option, err := GetDebugOption("../debug.json")
+	if err != nil {
+		t.Error(err)
+	}
+	c := InjectClient()
+	err = c.Put("test", option)
+	if err != nil {
+		t.Error(err)
+	}
+	err = c.Put("abc", option)
+	if err != nil {
+		t.Error(err)
+	}
+	var response []GetResponseContent
+	for _, identity := range []string{"test", "abc"} {
+		content, err := c.Get(identity)
+		if err != nil {
+			t.Error(err)
+		}
+		response = append(response, content)
+	}
+}
