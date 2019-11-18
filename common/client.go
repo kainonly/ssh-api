@@ -33,6 +33,7 @@ type (
 	}
 )
 
+// Inject ssh client service
 func InjectClient() *Client {
 	client := Client{}
 	client.runtime = make(map[string]*ssh.Client)
@@ -40,7 +41,7 @@ func InjectClient() *Client {
 	return &client
 }
 
-// Factory SSH AuthMethod
+// Generate AuthMethod
 func (c *Client) authMethod(option ConnectOption) (auth []ssh.AuthMethod, err error) {
 	if option.Key == nil {
 		// Password AuthMethod
@@ -73,7 +74,7 @@ func (c *Client) authMethod(option ConnectOption) (auth []ssh.AuthMethod, err er
 	return
 }
 
-// Connect SSH
+// Ssh client connection
 func (c *Client) connect(option ConnectOption) (client *ssh.Client, err error) {
 	auth, err := c.authMethod(option)
 	if err != nil {
@@ -89,12 +90,16 @@ func (c *Client) connect(option ConnectOption) (client *ssh.Client, err error) {
 	return
 }
 
-// Testing SSH Connect
+func (c *Client) GetClientOptions() map[string]*ConnectOption {
+	return c.options
+}
+
+// Test ssh client connection
 func (c *Client) Testing(option ConnectOption) (client *ssh.Client, err error) {
 	return c.connect(option)
 }
 
-// Put SSH Connect
+// Add or modify the ssh client
 func (c *Client) Put(identity string, option ConnectOption) (err error) {
 	var wg sync.WaitGroup
 	wg.Add(1)
@@ -107,7 +112,7 @@ func (c *Client) Put(identity string, option ConnectOption) (err error) {
 	return
 }
 
-// Get SSH Connect Information
+// Get ssh client information
 func (c *Client) Get(identity string) (content GetResponseContent, err error) {
 	if c.options[identity] == nil || c.runtime[identity] == nil {
 		err = errors.New("this identity does not exists")
@@ -124,6 +129,7 @@ func (c *Client) Get(identity string) (content GetResponseContent, err error) {
 	return
 }
 
+// Remotely execute commands via SSH
 func (c *Client) Exec(identity string, cmd string) (output []byte, err error) {
 	if c.options[identity] == nil || c.runtime[identity] == nil {
 		err = errors.New("this identity does not exists")
@@ -135,5 +141,19 @@ func (c *Client) Exec(identity string, cmd string) (output []byte, err error) {
 	}
 	defer session.Close()
 	output, err = session.Output(cmd)
+	return
+}
+
+// Delete ssh client
+func (c *Client) Delete(identity string) (err error) {
+	if c.options[identity] == nil || c.runtime[identity] == nil {
+		return
+	}
+	err = c.runtime[identity].Close()
+	if err != nil {
+		return
+	}
+	delete(c.runtime, identity)
+	delete(c.options, identity)
 	return
 }

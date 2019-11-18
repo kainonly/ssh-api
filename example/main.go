@@ -13,11 +13,11 @@ func NewLocalListener(address string) (listener net.Listener, err error) {
 }
 
 func main() {
-	option, err := GetOption("./debug.json")
+	option, err := common.GetDebugOption("./debug.json")
 	if err != nil {
 		log.Fatalln(err)
 	}
-	c := new(common.Client)
+	c := common.InjectClient()
 	client, err := c.Testing(option)
 	if err != nil {
 		log.Fatalln(err)

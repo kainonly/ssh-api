@@ -5,9 +5,12 @@ import (
 )
 
 func (app *application) AllRoute(ctx iris.Context) {
-	//
+	var keys []string
+	for key := range app.client.GetClientOptions() {
+		keys = append(keys, key)
+	}
 	ctx.JSON(iris.Map{
 		"error": 0,
-		"msg":   "ok",
+		"data":  keys,
 	})
 }

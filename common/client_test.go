@@ -1,17 +1,16 @@
-package main
+package common
 
 import (
-	"ssh-api/common"
 	"testing"
 	"time"
 )
 
 func TestSimple(t *testing.T) {
-	option, err := GetOption("../debug.json")
+	option, err := GetDebugOption("../debug.json")
 	if err != nil {
 		t.Error(err)
 	}
-	c := common.InjectClient()
+	c := InjectClient()
 	client, err := c.Testing(option)
 	if err != nil {
 		t.Error(err)
@@ -21,11 +20,11 @@ func TestSimple(t *testing.T) {
 }
 
 func TestPut(t *testing.T) {
-	option, err := GetOption("../debug.json")
+	option, err := GetDebugOption("../debug.json")
 	if err != nil {
 		t.Error(err)
 	}
-	c := common.InjectClient()
+	c := InjectClient()
 	err = c.Put("test", option)
 	if err != nil {
 		t.Error(err)
@@ -39,11 +38,11 @@ func TestPut(t *testing.T) {
 }
 
 func TestExec(t *testing.T) {
-	option, err := GetOption("../debug.json")
+	option, err := GetDebugOption("../debug.json")
 	if err != nil {
 		t.Error(err)
 	}
-	c := common.InjectClient()
+	c := InjectClient()
 	err = c.Put("test", option)
 	if err != nil {
 		t.Error(err)
@@ -56,11 +55,11 @@ func TestExec(t *testing.T) {
 }
 
 func TestMultiExec(t *testing.T) {
-	option, err := GetOption("../debug.json")
+	option, err := GetDebugOption("../debug.json")
 	if err != nil {
 		t.Error(err)
 	}
-	c := common.InjectClient()
+	c := InjectClient()
 	err = c.Put("test", option)
 	if err != nil {
 		t.Error(err)
@@ -76,4 +75,41 @@ func TestMultiExec(t *testing.T) {
 		t.Error(err)
 	}
 	println(string(output))
+}
+
+func TestDelete(t *testing.T) {
+	option, err := GetDebugOption("../debug.json")
+	if err != nil {
+		t.Error(err)
+	}
+	c := InjectClient()
+	err = c.Put("test", option)
+	if err != nil {
+		t.Error(err)
+	}
+	err = c.Delete("test")
+	if err != nil {
+		t.Error(err)
+	}
+}
+
+func TestAll(t *testing.T) {
+	option, err := GetDebugOption("../debug.json")
+	if err != nil {
+		t.Error(err)
+	}
+	c := InjectClient()
+	err = c.Put("test", option)
+	if err != nil {
+		t.Error(err)
+	}
+	err = c.Put("abc", option)
+	if err != nil {
+		t.Error(err)
+	}
+	var keys []string
+	for key, _ := range c.GetClientOptions() {
+		keys = append(keys, key)
+	}
+	println(keys)
 }
