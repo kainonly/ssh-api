@@ -109,17 +109,31 @@ func (c *Client) Put(identity string, option ConnectOption) (err error) {
 
 // Get SSH Connect Information
 func (c *Client) Get(identity string) (content GetResponseContent, err error) {
-	if c.options[identity] != nil && c.runtime[identity] != nil {
-		option := c.options[identity]
-		content = GetResponseContent{
-			Identity:  identity,
-			Host:      option.Host,
-			Port:      option.Port,
-			Username:  option.Username,
-			Connected: string(c.runtime[identity].ClientVersion()),
-		}
-	} else {
+	if c.options[identity] == nil || c.runtime[identity] == nil {
 		err = errors.New("this identity does not exists")
+		return
 	}
+	option := c.options[identity]
+	content = GetResponseContent{
+		Identity:  identity,
+		Host:      option.Host,
+		Port:      option.Port,
+		Username:  option.Username,
+		Connected: string(c.runtime[identity].ClientVersion()),
+	}
+	return
+}
+
+func (c *Client) Exec(identity string, cmd string) (output []byte, err error) {
+	if c.options[identity] == nil || c.runtime[identity] == nil {
+		err = errors.New("this identity does not exists")
+		return
+	}
+	session, err := c.runtime[identity].NewSession()
+	if err != nil {
+		return
+	}
+	defer session.Close()
+	output, err = session.Output(cmd)
 	return
 }
