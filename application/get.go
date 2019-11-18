@@ -1,4 +1,4 @@
-package router
+package application
 
 import (
 	"github.com/go-playground/validator/v10"
@@ -10,7 +10,7 @@ type getBody struct {
 }
 
 func (app *application) GetRoute(ctx iris.Context) {
-	var body deleteBody
+	var body getBody
 	ctx.ReadJSON(&body)
 	validate := validator.New()
 	if err := validate.Struct(body); err != nil {
@@ -20,9 +20,16 @@ func (app *application) GetRoute(ctx iris.Context) {
 		})
 		return
 	}
-	//
-	ctx.JSON(iris.Map{
-		"error": 0,
-		"msg":   "ok",
-	})
+	content, err := app.client.Get(body.Identity)
+	if err == nil {
+		ctx.JSON(iris.Map{
+			"error": 0,
+			"data":  content,
+		})
+	} else {
+		ctx.JSON(iris.Map{
+			"error": 1,
+			"msg":   err.Error(),
+		})
+	}
 }

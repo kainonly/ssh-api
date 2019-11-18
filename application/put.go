@@ -1,13 +1,14 @@
-package router
+package application
 
 import (
 	"encoding/base64"
 	"github.com/go-playground/validator/v10"
 	"github.com/kataras/iris/v12"
-	"ssh-api/service"
+	"ssh-api/common"
 )
 
-type testingBody struct {
+type putBody struct {
+	Identity   string `json:"identity" validate:"required"`
 	Host       string `json:"host" validate:"required,hostname|ip"`
 	Port       uint   `json:"port" validate:"required,numeric"`
 	Username   string `json:"username" validate:"required,alphanum"`
@@ -16,8 +17,8 @@ type testingBody struct {
 	Passphrase string `json:"passphrase"`
 }
 
-func (app *application) TestingRoute(ctx iris.Context) {
-	var body testingBody
+func (app *application) PutRoute(ctx iris.Context) {
+	var body putBody
 	ctx.ReadJSON(&body)
 	validate := validator.New()
 	if err := validate.Struct(body); err != nil {
@@ -35,22 +36,20 @@ func (app *application) TestingRoute(ctx iris.Context) {
 		})
 		return
 	}
-	client, err := app.client.Testing(service.ConnectOption{
+	if err := app.client.Put(body.Identity, common.ConnectOption{
 		Host:       body.Host,
 		Port:       body.Port,
 		Username:   body.Username,
 		Password:   body.Password,
 		Key:        privateKey,
 		PassPhrase: []byte(body.Passphrase),
-	})
-	if err != nil {
+	}); err != nil {
 		ctx.JSON(iris.Map{
 			"error": 1,
 			"msg":   err.Error(),
 		})
 		return
 	}
-	defer client.Close()
 	ctx.JSON(iris.Map{
 		"error": 0,
 		"msg":   "ok",

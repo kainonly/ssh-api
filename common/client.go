@@ -1,29 +1,43 @@
-package service
+package common
 
 import (
+	"errors"
 	"golang.org/x/crypto/ssh"
 	"strconv"
+	"sync"
 )
 
-type Client struct {
-	options   map[string]*ConnectOption
-	sshClient map[string]*ssh.Client
-}
+type (
+	Client struct {
+		runtime map[string]*ssh.Client
+		options map[string]*ConnectOption
+	}
+	ConnectOption struct {
+		Host       string
+		Port       uint
+		Username   string
+		Password   string
+		Key        []byte
+		PassPhrase []byte
+	}
+	ConnectOptionWithIdentity struct {
+		Identity string
+		ConnectOption
+	}
+	GetResponseContent struct {
+		Identity  string `json:"identity"`
+		Host      string `json:"host"`
+		Port      uint   `json:"port"`
+		Username  string `json:"username"`
+		Connected string `json:"connected"`
+	}
+)
 
 func InjectClient() *Client {
 	client := Client{}
+	client.runtime = make(map[string]*ssh.Client)
 	client.options = make(map[string]*ConnectOption)
-	client.sshClient = make(map[string]*ssh.Client)
 	return &client
-}
-
-type ConnectOption struct {
-	Host       string
-	Port       uint
-	Username   string
-	Password   string
-	Key        []byte
-	PassPhrase []byte
 }
 
 // Factory SSH AuthMethod
@@ -81,34 +95,31 @@ func (c *Client) Testing(option ConnectOption) (client *ssh.Client, err error) {
 }
 
 // Put SSH Connect
-func (c *Client) Put(identity string, option ConnectOption) (client *ssh.Client, err error) {
-	client, err = c.connect(option)
-	if err != nil {
-		return
-	}
-	c.options[identity] = &option
-	c.sshClient[identity] = client
+func (c *Client) Put(identity string, option ConnectOption) (err error) {
+	var wg sync.WaitGroup
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		c.options[identity] = &option
+		c.runtime[identity], err = c.connect(option)
+	}()
+	wg.Wait()
 	return
 }
 
-type GetResult struct {
-	Identity  string `json:"identity"`
-	Host      string `json:"host"`
-	Port      uint   `json:"port"`
-	Username  string `json:"username"`
-	Connected bool   `json:"connected"`
-}
-
 // Get SSH Connect Information
-func (c *Client) Get(identity string) (exists bool, result GetResult) {
-	exists = c.options[identity] != (&ConnectOption{})
-	option := c.options[identity]
-	result = GetResult{
-		Identity:  identity,
-		Host:      option.Host,
-		Port:      option.Port,
-		Username:  option.Username,
-		Connected: true,
+func (c *Client) Get(identity string) (content GetResponseContent, err error) {
+	if c.options[identity] != nil && c.runtime[identity] != nil {
+		option := c.options[identity]
+		content = GetResponseContent{
+			Identity:  identity,
+			Host:      option.Host,
+			Port:      option.Port,
+			Username:  option.Username,
+			Connected: string(c.runtime[identity].ClientVersion()),
+		}
+	} else {
+		err = errors.New("this identity does not exists")
 	}
 	return
 }
