@@ -21,7 +21,7 @@ func (app *application) ListsRoute(ctx iris.Context) {
 		})
 		return
 	}
-	var response []common.GetResponseContent
+	var response []common.Information
 	for _, identity := range body.Identity {
 		content, err := app.client.Get(identity)
 		if err != nil {
