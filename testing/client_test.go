@@ -1,7 +1,7 @@
 package main
 
 import (
-	"ssh-api/service"
+	"ssh-api/common"
 	"testing"
 )
 
@@ -10,7 +10,7 @@ func TestSimple(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	c := new(service.Client)
+	c := new(common.Client)
 	client, err := c.Testing(option)
 	if err != nil {
 		t.Error(err)

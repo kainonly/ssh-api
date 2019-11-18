@@ -4,7 +4,7 @@ import (
 	"io"
 	"log"
 	"net"
-	"ssh-api/service"
+	"ssh-api/common"
 )
 
 func NewLocalListener(address string) (listener net.Listener, err error) {
@@ -17,7 +17,7 @@ func main() {
 	if err != nil {
 		log.Fatalln(err)
 	}
-	c := new(service.Client)
+	c := new(common.Client)
 	client, err := c.Testing(option)
 	if err != nil {
 		log.Fatalln(err)

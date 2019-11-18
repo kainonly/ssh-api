@@ -4,8 +4,8 @@ import (
 	"github.com/kataras/iris/v12"
 	"github.com/kataras/iris/v12/middleware/logger"
 	"github.com/kataras/iris/v12/middleware/recover"
-	"ssh-api/router"
-	"ssh-api/service"
+	"ssh-api/application"
+	"ssh-api/common"
 )
 
 func main() {
@@ -13,16 +13,16 @@ func main() {
 	app.Logger().SetLevel("debug")
 	app.Use(recover.New())
 	app.Use(logger.New())
-	route := router.Container(
-		service.InjectClient(),
+	handlers := application.Init(
+		common.InjectClient(),
 	)
-	app.Post("testing", route.TestingRoute)
-	app.Post("put", route.PutRoute)
-	app.Post("exec", route.ExecRoute)
-	app.Post("delete", route.DeleteRoute)
-	app.Post("get", route.GetRoute)
-	app.Post("all", route.AllRoute)
-	app.Post("lists", route.ListsRoute)
-	app.Post("tunnels", route.TunnelsRoute)
-	app.Run(iris.Addr("127.0.0.1:3000"), iris.WithoutServerError(iris.ErrServerClosed))
+	app.Post("testing", handlers.TestingRoute)
+	app.Post("put", handlers.PutRoute)
+	app.Post("exec", handlers.ExecRoute)
+	app.Post("delete", handlers.DeleteRoute)
+	app.Post("get", handlers.GetRoute)
+	app.Post("all", handlers.AllRoute)
+	app.Post("lists", handlers.ListsRoute)
+	app.Post("tunnels", handlers.TunnelsRoute)
+	app.Run(iris.Addr(":3000"), iris.WithoutServerError(iris.ErrServerClosed))
 }

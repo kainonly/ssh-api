@@ -1,17 +1,16 @@
-package router
+package application
 
 import (
 	"github.com/go-playground/validator/v10"
 	"github.com/kataras/iris/v12"
 )
 
-type tunnelsBody struct {
-	Identity string     `json:"identity" validate:"required"`
-	Tunnels  [][]string `json:"tunnels" validate:"required"`
+type deleteBody struct {
+	Identity string `json:"identity" validate:"required"`
 }
 
-func (app *application) TunnelsRoute(ctx iris.Context) {
-	var body tunnelsBody
+func (app *application) DeleteRoute(ctx iris.Context) {
+	var body deleteBody
 	ctx.ReadJSON(&body)
 	validate := validator.New()
 	if err := validate.Struct(body); err != nil {
