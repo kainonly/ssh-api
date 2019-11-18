@@ -101,6 +101,10 @@ func (c *Client) Testing(option ConnectOption) (client *ssh.Client, err error) {
 
 // Add or modify the ssh client
 func (c *Client) Put(identity string, option ConnectOption) (err error) {
+	err = c.Delete(identity)
+	if err != nil {
+		return
+	}
 	var wg sync.WaitGroup
 	wg.Add(1)
 	go func() {

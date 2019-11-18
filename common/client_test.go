@@ -34,7 +34,7 @@ func TestPut(t *testing.T) {
 		t.Error(err)
 	}
 	println(content.Identity)
-	println(content.Connected)
+	println(content.Host)
 }
 
 func TestExec(t *testing.T) {
