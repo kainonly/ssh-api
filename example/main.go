@@ -1,58 +1,54 @@
 package main
 
 import (
-	"io"
 	"log"
 	"net"
 	"ssh-api/common"
 )
 
-func NewLocalListener(address string) (listener net.Listener, err error) {
-	listener, err = net.Listen("tcp", address)
-	return
-}
-
 func main() {
-	option, err := common.GetDebugOption("./debug.json")
-	if err != nil {
-		log.Fatalln(err)
-	}
-	c := common.InjectClient()
-	client, err := c.Testing(option)
+	localListener = make(map[string]*net.Listener)
+	localConn = make(map[string]*net.Conn)
+	//var remoteConn map[string]*net.Conn
+	//remoteConn = make(map[string]*net.Conn)
+	client, err := connected()
 	if err != nil {
 		log.Fatalln(err)
 	}
 	defer client.Close()
-
-	listener, err := NewLocalListener(":5601")
-	if err != nil {
-		log.Fatalln(err)
-	}
-	defer listener.Close()
-
-	for {
-		local, err := listener.Accept()
-		if err != nil {
-			log.Fatal(err)
+	for _, tunnel := range tunnels {
+		localAddr := common.GetAddr(tunnel.DstIp, tunnel.DstPort)
+		if listener, err := net.Listen("tcp", localAddr); err == nil {
+			localListener[localAddr] = &listener
+		} else {
+			log.Fatalln(err)
 		}
-
 		go func() {
-			remote, err := client.Dial("tcp", "0.0.0.0:5601")
-			if err != nil {
-				log.Fatal(err)
+			for {
+				if local, err := (*localListener[localAddr]).Accept(); err == nil {
+					localConn[localAddr] = &local
+				} else {
+					log.Fatal(err)
+				}
+
+				//go func() {
+				//	remoteAddr := common.GetAddr(tunnel.SrcIp, tunnel.SrcPort)
+				//	if remote, err := client.Dial("tcp", remoteAddr); err == nil {
+				//		remoteConn[remoteAddr] = &remote
+				//	} else {
+				//		log.Fatal(err)
+				//	}
+				//	go func() {
+				//		io.Copy(*localConn[localAddr], *remoteConn[remoteAddr])
+				//	}()
+				//	go func() {
+				//		io.Copy(*remoteConn[remoteAddr], *localConn[localAddr])
+				//	}()
+				//}()
+
 			}
-			go func() {
-				_, err := io.Copy(local, remote)
-				if err != nil {
-					log.Fatal(err)
-				}
-			}()
-			go func() {
-				_, err := io.Copy(remote, local)
-				if err != nil {
-					log.Fatal(err)
-				}
-			}()
 		}()
 	}
+
+	select {}
 }

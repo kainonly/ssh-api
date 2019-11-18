@@ -3,6 +3,8 @@ package common
 import (
 	"errors"
 	"golang.org/x/crypto/ssh"
+	"io"
+	"net"
 	"strconv"
 	"sync"
 )
@@ -24,12 +26,19 @@ type (
 		Identity string
 		ConnectOption
 	}
-	GetResponseContent struct {
-		Identity  string `json:"identity"`
-		Host      string `json:"host"`
-		Port      uint   `json:"port"`
-		Username  string `json:"username"`
-		Connected string `json:"connected"`
+	Information struct {
+		Identity  string         `json:"identity"`
+		Host      string         `json:"host"`
+		Port      uint           `json:"port"`
+		Username  string         `json:"username"`
+		Connected string         `json:"connected"`
+		Tunnels   []TunnelOption `json:"tunnels"`
+	}
+	TunnelOption struct {
+		SrcIp   string `json:"src_ip" validate:"required"`
+		SrcPort uint   `json:"src_port" validate:"required"`
+		DstIp   string `json:"dst_ip" validate:"required"`
+		DstPort uint   `json:"dst_port" validate:"required"`
 	}
 )
 
@@ -39,6 +48,11 @@ func InjectClient() *Client {
 	client.runtime = make(map[string]*ssh.Client)
 	client.options = make(map[string]*ConnectOption)
 	return &client
+}
+
+// Get Addr
+func GetAddr(ip string, port uint) string {
+	return ip + ":" + strconv.Itoa(int(port))
 }
 
 // Generate AuthMethod
@@ -85,11 +99,12 @@ func (c *Client) connect(option ConnectOption) (client *ssh.Client, err error) {
 		Auth:            auth,
 		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
 	}
-	addr := option.Host + ":" + strconv.Itoa(int(option.Port))
+	addr := GetAddr(option.Host, option.Port)
 	client, err = ssh.Dial("tcp", addr, &config)
 	return
 }
 
+// Get Client Options
 func (c *Client) GetClientOptions() map[string]*ConnectOption {
 	return c.options
 }
@@ -117,13 +132,13 @@ func (c *Client) Put(identity string, option ConnectOption) (err error) {
 }
 
 // Get ssh client information
-func (c *Client) Get(identity string) (content GetResponseContent, err error) {
+func (c *Client) Get(identity string) (content Information, err error) {
 	if c.options[identity] == nil || c.runtime[identity] == nil {
 		err = errors.New("this identity does not exists")
 		return
 	}
 	option := c.options[identity]
-	content = GetResponseContent{
+	content = Information{
 		Identity:  identity,
 		Host:      option.Host,
 		Port:      option.Port,
@@ -139,12 +154,18 @@ func (c *Client) Exec(identity string, cmd string) (output []byte, err error) {
 		err = errors.New("this identity does not exists")
 		return
 	}
-	session, err := c.runtime[identity].NewSession()
-	if err != nil {
-		return
-	}
-	defer session.Close()
-	output, err = session.Output(cmd)
+	var wg sync.WaitGroup
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		session, err := c.runtime[identity].NewSession()
+		if err != nil {
+			return
+		}
+		defer session.Close()
+		output, err = session.Output(cmd)
+	}()
+	wg.Wait()
 	return
 }
 
@@ -159,5 +180,54 @@ func (c *Client) Delete(identity string) (err error) {
 	}
 	delete(c.runtime, identity)
 	delete(c.options, identity)
+	return
+}
+
+func (c *Client) Tunnels(identity string, options []TunnelOption) (err error) {
+	if c.options[identity] == nil || c.runtime[identity] == nil {
+		err = errors.New("this identity does not exists")
+		return
+	}
+	var wg sync.WaitGroup
+	wg.Add(len(options))
+	for _, option := range options {
+		go func() {
+			dstAddr := option.DstIp + ":" + strconv.Itoa(int(option.DstPort))
+			listener, err := net.Listen("tcp", dstAddr)
+			if err != nil {
+				return
+			}
+			defer listener.Close()
+			wg.Done()
+			go func() {
+				for {
+					local, err := listener.Accept()
+					if err != nil {
+						return
+					}
+					go func() {
+						srcAddr := option.SrcIp + ":" + strconv.Itoa(int(option.SrcPort))
+						remote, err := c.runtime[identity].Dial("tcp", srcAddr)
+						if err != nil {
+							return
+						}
+						go func() {
+							_, err := io.Copy(local, remote)
+							if err != nil {
+								return
+							}
+						}()
+						go func() {
+							_, err := io.Copy(remote, local)
+							if err != nil {
+								return
+							}
+						}()
+					}()
+				}
+			}()
+		}()
+	}
+	wg.Wait()
 	return
 }

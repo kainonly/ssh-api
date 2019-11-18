@@ -15,6 +15,7 @@ type DebugOption struct {
 	PassPhrase string `json:"passphrase"`
 }
 
+
 func GetDebugOption(filename string) (option ConnectOption, err error) {
 	debug, err := ioutil.ReadFile(filename)
 	if err != nil {
@@ -38,3 +39,5 @@ func GetDebugOption(filename string) (option ConnectOption, err error) {
 	}
 	return
 }
+
+
