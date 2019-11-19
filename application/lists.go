@@ -3,7 +3,7 @@ package application
 import (
 	"github.com/go-playground/validator/v10"
 	"github.com/kataras/iris/v12"
-	"ssh-api/common"
+	"ssh-api/client"
 )
 
 type listsBody struct {
@@ -21,7 +21,7 @@ func (app *application) ListsRoute(ctx iris.Context) {
 		})
 		return
 	}
-	var response []common.Information
+	var response []client.Information
 	for _, identity := range body.Identity {
 		content, err := app.client.Get(identity)
 		if err != nil {

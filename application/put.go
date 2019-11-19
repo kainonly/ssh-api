@@ -4,7 +4,7 @@ import (
 	"encoding/base64"
 	"github.com/go-playground/validator/v10"
 	"github.com/kataras/iris/v12"
-	"ssh-api/common"
+	"ssh-api/client"
 )
 
 type putBody struct {
@@ -36,7 +36,7 @@ func (app *application) PutRoute(ctx iris.Context) {
 		})
 		return
 	}
-	if err := app.client.Put(body.Identity, common.ConnectOption{
+	if err := app.client.Put(body.Identity, client.ConnectOption{
 		Host:       body.Host,
 		Port:       body.Port,
 		Username:   body.Username,
