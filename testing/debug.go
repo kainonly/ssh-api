@@ -3,6 +3,7 @@ package testing
 import (
 	"encoding/base64"
 	"encoding/json"
+	"golang.org/x/crypto/ssh"
 	"io/ioutil"
 	"ssh-api/client"
 )
@@ -15,7 +16,6 @@ type DebugOption struct {
 	Key        string `json:"key"`
 	PassPhrase string `json:"passphrase"`
 }
-
 
 func GetDebugOption(filename string) (option client.ConnectOption, err error) {
 	debug, err := ioutil.ReadFile(filename)
@@ -41,4 +41,11 @@ func GetDebugOption(filename string) (option client.ConnectOption, err error) {
 	return
 }
 
-
+func DebugConnected() (sshClient *ssh.Client, err error) {
+	option, err := GetDebugOption("./debug.json")
+	if err != nil {
+		return
+	}
+	c := client.InjectClient()
+	return c.Testing(option)
+}

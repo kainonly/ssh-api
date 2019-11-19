@@ -10,75 +10,81 @@ import (
 	"ssh-api/client"
 	"ssh-api/common"
 	"ssh-api/testing"
+	"sync"
+	"time"
 )
 
 var (
-	localListener map[string]*net.Listener
-	tunnels       = []client.TunnelOption{
-		{
-			SrcIp:   "127.0.0.1",
-			SrcPort: 5601,
-			DstIp:   "127.0.0.1",
-			DstPort: 5601,
-		},
-		{
-			SrcIp:   "127.0.0.1",
-			SrcPort: 9200,
-			DstIp:   "127.0.0.1",
-			DstPort: 9200,
-		},
+	kibana = client.TunnelOption{
+		SrcIp:   "127.0.0.1",
+		SrcPort: 5601,
+		DstIp:   "127.0.0.1",
+		DstPort: 5601,
+	}
+	service = client.TunnelOption{
+		SrcIp:   "192.168.1.2",
+		SrcPort: 8000,
+		DstIp:   "127.0.0.1",
+		DstPort: 8080,
 	}
 )
 
-func connected() (sshClient *ssh.Client, err error) {
-	option, err := testing.GetDebugOption("./debug.json")
-	if err != nil {
-		return
-	}
-	c := client.InjectClient()
-	return c.Testing(option)
-}
-
-func setTunnel(client *ssh.Client, tunnel client.TunnelOption) {
-	localAddr := common.GetAddr(tunnel.DstIp, tunnel.DstPort)
-	listener, err := net.Listen("tcp", localAddr)
-	if err != nil {
-		log.Fatalln(err)
-	} else {
-		localListener[localAddr] = &listener
-	}
-	go transport(
-		client,
-		common.GetAddr(tunnel.SrcIp, tunnel.SrcPort),
-		localListener[localAddr],
-	)
-}
-
-//  tunnel data to the remote server
-func transport(client *ssh.Client, remoteAddr string, listener *net.Listener) {
-	for {
-		localConn, err := (*listener).Accept()
-		if err != nil {
-			log.Fatalln(err)
-		}
-		remoteConn, err := client.Dial("tcp", remoteAddr)
-		if err != nil {
-			log.Fatalln(err)
-		}
-		go io.Copy(localConn, remoteConn)
-		go io.Copy(remoteConn, localConn)
-	}
-}
-
 func main() {
-	localListener = make(map[string]*net.Listener)
-	sshClient, err := connected()
+	go func() {
+		http.ListenAndServe(":6060", nil)
+	}()
+	sshClient, err := testing.DebugConnected()
 	if err != nil {
 		log.Fatalln(err)
 	}
-	for _, tunnel := range tunnels {
-		go setTunnel(sshClient, tunnel)
-
+	tunnel := &kibana
+	remoteAddr := common.GetAddr(tunnel.SrcIp, tunnel.SrcPort)
+	localAddr, err := net.ResolveTCPAddr("tcp", common.GetAddr(tunnel.DstIp, tunnel.DstPort))
+	if err != nil {
+		log.Fatalln(err)
 	}
-	http.ListenAndServe(":6060", nil)
+	localListener, err := net.ListenTCP("tcp", localAddr)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	for {
+		localConn, err := localListener.AcceptTCP()
+		if err != nil {
+			log.Fatalln(err)
+		}
+		go transport(
+			localConn,
+			sshClient,
+			remoteAddr,
+		)
+	}
+}
+
+func transport(localConn *net.TCPConn, sshClient *ssh.Client, remoteAddr string) {
+	defer localConn.Close()
+	localConn.SetNoDelay(true)
+	localConn.SetKeepAlive(true)
+	localConn.SetKeepAlivePeriod(5 * time.Second)
+	remoteConn, err := sshClient.Dial("tcp", remoteAddr)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	defer remoteConn.Close()
+	var wg sync.WaitGroup
+	wg.Add(2)
+	go func() {
+		_, err := io.Copy(localConn, remoteConn)
+		if err != nil {
+			log.Fatalln(err)
+		}
+		wg.Done()
+	}()
+	go func() {
+		_, err := io.Copy(remoteConn, localConn)
+		if err != nil {
+			log.Fatalln(err)
+		}
+		wg.Done()
+	}()
+	wg.Wait()
 }
