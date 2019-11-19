@@ -9,6 +9,7 @@ import (
 var (
 	localListener map[string]*net.Listener
 	localConn     map[string]*net.Conn
+	remoteConn    map[string]*net.Conn
 )
 
 var tunnels = []common.TunnelOption{

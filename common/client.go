@@ -7,6 +7,7 @@ import (
 	"net"
 	"strconv"
 	"sync"
+	"time"
 )
 
 type (
@@ -98,6 +99,7 @@ func (c *Client) connect(option ConnectOption) (client *ssh.Client, err error) {
 		User:            option.Username,
 		Auth:            auth,
 		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
+		Timeout:         time.Duration(3 * time.Second),
 	}
 	addr := GetAddr(option.Host, option.Port)
 	client, err = ssh.Dial("tcp", addr, &config)
