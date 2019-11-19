@@ -1,6 +1,7 @@
-package common
+package testing
 
 import (
+	"ssh-api/client"
 	"testing"
 	"time"
 )
@@ -10,13 +11,13 @@ func TestSimple(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	c := InjectClient()
-	client, err := c.Testing(option)
+	c := client.InjectClient()
+	sshclient, err := c.Testing(option)
 	if err != nil {
 		t.Error(err)
 	}
-	defer client.Close()
-	println(string(client.ClientVersion()))
+	defer sshclient.Close()
+	println(string(sshclient.ClientVersion()))
 }
 
 func TestPut(t *testing.T) {
@@ -24,7 +25,7 @@ func TestPut(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	c := InjectClient()
+	c := client.InjectClient()
 	err = c.Put("test", option)
 	if err != nil {
 		t.Error(err)
@@ -42,7 +43,7 @@ func TestExec(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	c := InjectClient()
+	c := client.InjectClient()
 	err = c.Put("test", option)
 	if err != nil {
 		t.Error(err)
@@ -59,7 +60,7 @@ func TestMultiExec(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	c := InjectClient()
+	c := client.InjectClient()
 	err = c.Put("test", option)
 	if err != nil {
 		t.Error(err)
@@ -82,7 +83,7 @@ func TestDelete(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	c := InjectClient()
+	c := client.InjectClient()
 	err = c.Put("test", option)
 	if err != nil {
 		t.Error(err)
@@ -98,7 +99,7 @@ func TestAll(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	c := InjectClient()
+	c := client.InjectClient()
 	err = c.Put("test", option)
 	if err != nil {
 		t.Error(err)
@@ -119,7 +120,7 @@ func TestLists(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	c := InjectClient()
+	c := client.InjectClient()
 	err = c.Put("test", option)
 	if err != nil {
 		t.Error(err)
@@ -128,7 +129,7 @@ func TestLists(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	var response []GetResponseContent
+	var response []client.Information
 	for _, identity := range []string{"test", "abc"} {
 		content, err := c.Get(identity)
 		if err != nil {

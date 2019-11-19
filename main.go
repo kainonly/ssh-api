@@ -5,7 +5,7 @@ import (
 	"github.com/kataras/iris/v12/middleware/logger"
 	"github.com/kataras/iris/v12/middleware/recover"
 	"ssh-api/application"
-	"ssh-api/common"
+	"ssh-api/client"
 )
 
 func main() {
@@ -14,7 +14,7 @@ func main() {
 	app.Use(recover.New())
 	app.Use(logger.New())
 	handlers := application.Init(
-		common.InjectClient(),
+		client.InjectClient(),
 	)
 	app.Post("testing", handlers.TestingRoute)
 	app.Post("put", handlers.PutRoute)

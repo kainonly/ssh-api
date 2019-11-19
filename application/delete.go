@@ -32,5 +32,4 @@ func (app *application) DeleteRoute(ctx iris.Context) {
 			"msg":   err.Error(),
 		})
 	}
-
 }

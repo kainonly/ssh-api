@@ -1,9 +1,10 @@
-package common
+package testing
 
 import (
 	"encoding/base64"
 	"encoding/json"
 	"io/ioutil"
+	"ssh-api/client"
 )
 
 type DebugOption struct {
@@ -16,7 +17,7 @@ type DebugOption struct {
 }
 
 
-func GetDebugOption(filename string) (option ConnectOption, err error) {
+func GetDebugOption(filename string) (option client.ConnectOption, err error) {
 	debug, err := ioutil.ReadFile(filename)
 	if err != nil {
 		return
@@ -29,7 +30,7 @@ func GetDebugOption(filename string) (option ConnectOption, err error) {
 	if err != nil {
 		return
 	}
-	option = ConnectOption{
+	option = client.ConnectOption{
 		Host:       debugOption.Host,
 		Port:       debugOption.Port,
 		Username:   debugOption.Username,

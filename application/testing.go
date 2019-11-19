@@ -4,7 +4,7 @@ import (
 	"encoding/base64"
 	"github.com/go-playground/validator/v10"
 	"github.com/kataras/iris/v12"
-	"ssh-api/common"
+	"ssh-api/client"
 )
 
 type testingBody struct {
@@ -35,7 +35,7 @@ func (app *application) TestingRoute(ctx iris.Context) {
 		})
 		return
 	}
-	client, err := app.client.Testing(common.ConnectOption{
+	sshClient, err := app.client.Testing(client.ConnectOption{
 		Host:       body.Host,
 		Port:       body.Port,
 		Username:   body.Username,
@@ -50,7 +50,7 @@ func (app *application) TestingRoute(ctx iris.Context) {
 		})
 		return
 	}
-	defer client.Close()
+	defer sshClient.Close()
 	ctx.JSON(iris.Map{
 		"error": 0,
 		"msg":   "ok",
