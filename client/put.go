@@ -2,6 +2,11 @@ package client
 
 import "sync"
 
+type ConnectOptionWithIdentity struct {
+	Identity string
+	ConnectOption
+}
+
 // Add or modify the ssh client
 func (c *Client) Put(identity string, option ConnectOption) (err error) {
 	err = c.Delete(identity)

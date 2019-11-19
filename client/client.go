@@ -2,32 +2,24 @@ package client
 
 import (
 	"golang.org/x/crypto/ssh"
+	"net"
 )
 
 type Client struct {
 	runtime map[string]*ssh.Client
+	server  map[string]*net.TCPListener
 	options map[string]*ConnectOption
+	Error   chan error
 }
-
-type (
-	ConnectOptionWithIdentity struct {
-		Identity string
-		ConnectOption
-	}
-	TunnelOption struct {
-		SrcIp   string `json:"src_ip" validate:"required"`
-		SrcPort uint   `json:"src_port" validate:"required"`
-		DstIp   string `json:"dst_ip" validate:"required"`
-		DstPort uint   `json:"dst_port" validate:"required"`
-	}
-)
 
 // Inject ssh client service
 func InjectClient() *Client {
-	client := Client{}
-	client.runtime = make(map[string]*ssh.Client)
-	client.options = make(map[string]*ConnectOption)
-	return &client
+	return &Client{
+		runtime: make(map[string]*ssh.Client),
+		server:  make(map[string]*net.TCPListener),
+		options: make(map[string]*ConnectOption),
+		Error:   make(chan error),
+	}
 }
 
 // Get Client Options

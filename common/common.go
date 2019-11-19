@@ -1,6 +1,12 @@
 package common
 
-import "strconv"
+import (
+	"strconv"
+)
+
+type ErrorMessage struct {
+	error
+}
 
 // Get Addr
 func GetAddr(ip string, port uint) string {
