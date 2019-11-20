@@ -21,14 +21,14 @@ func (c *Client) Tunnels(identity string, options []TunnelOption) (err error) {
 		err = errors.New("this identity does not exists")
 		return
 	}
-	for _, listener := range c.localListener {
+	for _, listener := range c.localListener.Map {
 		listener.Close()
 	}
+	if c.localListener != nil {
+		c.localListener = newSafeMapListener()
+	}
 	for _, tunnel := range options {
-		go c.setTunnel(
-			identity,
-			tunnel,
-		)
+		go c.setTunnel(identity, tunnel)
 	}
 	return
 }
@@ -41,22 +41,20 @@ func (c *Client) setTunnel(identity string, option TunnelOption) {
 		c.error <- common.SendError(identity, err)
 		return
 	}
-	c.localListener[identity], err = net.ListenTCP("tcp", localAddr)
+	localListener, err := net.ListenTCP("tcp", localAddr);
 	if err != nil {
 		c.error <- common.SendError(identity, err)
 		return
+	} else {
+		c.localListener.Set(identity, localListener)
 	}
 	for {
-		localConn, err := c.localListener[identity].AcceptTCP()
+		localConn, err := c.localListener.Get(identity).AcceptTCP()
 		if err != nil {
 			c.error <- common.SendError(identity, err)
 			return
 		}
-		go c.transport(
-			identity,
-			localConn,
-			remoteAddr,
-		)
+		go c.transport(identity, localConn, remoteAddr)
 	}
 }
 

@@ -1,6 +1,8 @@
 package client
 
-import "sync"
+import (
+	"sync"
+)
 
 type ConnectOptionWithIdentity struct {
 	Identity string
@@ -19,6 +21,9 @@ func (c *Client) Put(identity string, option ConnectOption) (err error) {
 		defer wg.Done()
 		c.options[identity] = &option
 		c.runtime[identity], err = c.connect(option)
+		if err != nil {
+			return
+		}
 	}()
 	wg.Wait()
 	return
