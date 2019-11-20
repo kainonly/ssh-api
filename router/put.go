@@ -1,4 +1,4 @@
-package application
+package router
 
 import (
 	"encoding/base64"
@@ -17,7 +17,7 @@ type putBody struct {
 	Passphrase string `json:"passphrase"`
 }
 
-func (app *application) PutRoute(ctx iris.Context) {
+func (r *router) PutRoute(ctx iris.Context) {
 	var body putBody
 	ctx.ReadJSON(&body)
 	validate := validator.New()
@@ -36,7 +36,7 @@ func (app *application) PutRoute(ctx iris.Context) {
 		})
 		return
 	}
-	if err := app.client.Put(body.Identity, client.ConnectOption{
+	if err := r.client.Put(body.Identity, client.ConnectOption{
 		Host:       body.Host,
 		Port:       body.Port,
 		Username:   body.Username,

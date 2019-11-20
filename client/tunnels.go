@@ -2,7 +2,6 @@ package client
 
 import (
 	"errors"
-	"golang.org/x/crypto/ssh"
 	"io"
 	"net"
 	"ssh-api/common"
@@ -11,10 +10,10 @@ import (
 )
 
 type TunnelOption struct {
-	SrcIp   string `json:"src_ip" validate:"required"`
-	SrcPort uint   `json:"src_port" validate:"required"`
-	DstIp   string `json:"dst_ip" validate:"required"`
-	DstPort uint   `json:"dst_port" validate:"required"`
+	SrcIp   string `json:"src_ip" validate:"required,ip"`
+	SrcPort uint   `json:"src_port" validate:"required,numeric"`
+	DstIp   string `json:"dst_ip" validate:"required,ip"`
+	DstPort uint   `json:"dst_port" validate:"required,numeric"`
 }
 
 func (c *Client) Tunnels(identity string, options []TunnelOption) (err error) {
@@ -22,73 +21,74 @@ func (c *Client) Tunnels(identity string, options []TunnelOption) (err error) {
 		err = errors.New("this identity does not exists")
 		return
 	}
+	for _, listener := range c.localListener {
+		listener.Close()
+	}
 	for _, tunnel := range options {
 		go c.setTunnel(
-			c.runtime[identity],
-			c.server[identity],
+			identity,
 			tunnel,
 		)
 	}
 	return
 }
 
-func (c *Client) setTunnel(client *ssh.Client, listener *net.TCPListener, tunnel TunnelOption) {
-	addr := common.GetAddr(tunnel.DstIp, tunnel.DstPort)
-	remoteAddr := common.GetAddr(tunnel.SrcIp, tunnel.SrcPort)
+func (c *Client) setTunnel(identity string, option TunnelOption) {
+	addr := common.GetAddr(option.DstIp, option.DstPort)
+	remoteAddr := common.GetAddr(option.SrcIp, option.SrcPort)
 	localAddr, err := net.ResolveTCPAddr("tcp", addr)
 	if err != nil {
-		c.Error <- err
+		c.error <- common.SendError(identity, err)
 		return
 	}
-	listener, err = net.ListenTCP("tcp", localAddr)
+	c.localListener[identity], err = net.ListenTCP("tcp", localAddr)
 	if err != nil {
-		c.Error <- err
+		c.error <- common.SendError(identity, err)
 		return
 	}
 	for {
-		localConn, err := listener.AcceptTCP()
+		localConn, err := c.localListener[identity].AcceptTCP()
 		if err != nil {
-			c.Error <- err
+			c.error <- common.SendError(identity, err)
 			return
 		}
 		go c.transport(
+			identity,
 			localConn,
-			client,
 			remoteAddr,
 		)
 	}
 }
 
 //  tunnel data to the remote server
-func (c *Client) transport(localConn *net.TCPConn, client *ssh.Client, remoteAddr string) {
+func (c *Client) transport(identity string, localConn *net.TCPConn, remoteAddr string) {
 	defer localConn.Close()
 	localConn.SetNoDelay(true)
 	localConn.SetKeepAlive(true)
 	localConn.SetKeepAlivePeriod(5 * time.Second)
-	remoteConn, err := client.Dial("tcp", remoteAddr)
+	remoteConn, err := c.runtime[identity].Dial("tcp", remoteAddr)
 	if err != nil {
-		c.Error <- err
+		c.error <- common.SendError(identity, err)
 		return
 	}
 	defer remoteConn.Close()
 	var wg sync.WaitGroup
 	wg.Add(2)
 	go func() {
-		_, err = io.Copy(localConn, remoteConn)
+		_, err := io.Copy(localConn, remoteConn)
 		if err != nil {
-			c.Error <- err
+			c.error <- common.SendError(identity, err)
 			return
 		}
 		wg.Done()
 	}()
 	go func() {
-		_, err = io.Copy(remoteConn, localConn)
+		_, err := io.Copy(remoteConn, localConn)
 		if err != nil {
-			c.Error <- err
+			c.error <- common.SendError(identity, err)
 			return
 		}
 		wg.Done()
 	}()
 	wg.Wait()
-	return
 }

@@ -4,8 +4,16 @@ import (
 	"strconv"
 )
 
-type ErrorMessage struct {
+type Error struct {
+	Name string
 	error
+}
+
+func SendError(identity string, err error) Error {
+	return Error{
+		Name:  identity,
+		error: err,
+	}
 }
 
 // Get Addr

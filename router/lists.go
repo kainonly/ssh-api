@@ -1,4 +1,4 @@
-package application
+package router
 
 import (
 	"github.com/go-playground/validator/v10"
@@ -10,7 +10,7 @@ type listsBody struct {
 	Identity []string `json:"identity" validate:"required"`
 }
 
-func (app *application) ListsRoute(ctx iris.Context) {
+func (r *router) ListsRoute(ctx iris.Context) {
 	var body listsBody
 	ctx.ReadJSON(&body)
 	validate := validator.New()
@@ -23,7 +23,7 @@ func (app *application) ListsRoute(ctx iris.Context) {
 	}
 	var response []client.Information
 	for _, identity := range body.Identity {
-		content, err := app.client.Get(identity)
+		content, err := r.client.Get(identity)
 		if err != nil {
 			ctx.JSON(iris.Map{
 				"error": 1,

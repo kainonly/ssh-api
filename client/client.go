@@ -3,22 +3,37 @@ package client
 import (
 	"golang.org/x/crypto/ssh"
 	"net"
+	"ssh-api/common"
 )
 
 type Client struct {
-	runtime map[string]*ssh.Client
-	server  map[string]*net.TCPListener
-	options map[string]*ConnectOption
-	Error   chan error
+	options       map[string]*ConnectOption
+	runtime       map[string]*ssh.Client
+	localListener map[string]*net.TCPListener
+	error         chan common.Error
 }
 
 // Inject ssh client service
 func InjectClient() *Client {
+	channel := make(chan common.Error)
+	go lisenErrorChannel(channel)
 	return &Client{
-		runtime: make(map[string]*ssh.Client),
-		server:  make(map[string]*net.TCPListener),
-		options: make(map[string]*ConnectOption),
-		Error:   make(chan error),
+		options:       make(map[string]*ConnectOption),
+		runtime:       make(map[string]*ssh.Client),
+		localListener: make(map[string]*net.TCPListener),
+		error:         channel,
+	}
+}
+
+func lisenErrorChannel(channel chan common.Error) {
+	defer func() {
+		if r := recover(); r != nil {
+			println(r.(string))
+		}
+	}()
+	select {
+	case data := <-channel:
+		panic("<" + data.Name + "> " + data.Error())
 	}
 }
 
