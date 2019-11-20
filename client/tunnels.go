@@ -20,8 +20,12 @@ func (c *Client) Tunnels(identity string, options []TunnelOption) (err error) {
 		err = errors.New("this identity does not exists")
 		return
 	}
+	for _, conn := range c.localConn.Map {
+		(*conn).Close()
+	}
+	c.localConn = newSafeMapConn()
 	for _, listener := range c.localListener.Map {
-		listener.Close()
+		(*listener).Close()
 	}
 	c.localListener = newSafeMapListener()
 	for _, tunnel := range options {
@@ -38,24 +42,27 @@ func (c *Client) mutilTunnel(identity string, option TunnelOption) {
 		println("<" + identity + ">:" + err.Error())
 		return
 	} else {
-		c.localListener.Set(identity, localListener)
+		c.localListener.Set(identity, &localListener)
 	}
 	for {
 		localConn, err := localListener.Accept()
 		if err != nil {
 			println("<" + identity + ">:" + err.Error())
 			return
+		} else {
+			c.localConn.Set(identity, &localConn)
 		}
-		go c.forward(identity, localConn, remoteAddr)
+		go c.forward(identity, remoteAddr)
 	}
 }
 
 //  tunnel data to the remote server
-func (c *Client) forward(identity string, localConn net.Conn, remoteAddr string) {
+func (c *Client) forward(identity string, remoteAddr string) {
+	localConn := *c.localConn.Get(identity)
 	defer localConn.Close()
 	remoteConn, err := c.runtime[identity].Dial("tcp", remoteAddr)
 	if err != nil {
-		println("<" + identity + ">:" + err.Error())
+		println("remote <" + identity + ">:" + err.Error())
 		return
 	}
 	defer remoteConn.Close()
