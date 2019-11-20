@@ -1,4 +1,4 @@
-package application
+package router
 
 import (
 	"encoding/base64"
@@ -16,7 +16,7 @@ type testingBody struct {
 	Passphrase string `json:"passphrase"`
 }
 
-func (app *application) TestingRoute(ctx iris.Context) {
+func (r *router) TestingRoute(ctx iris.Context) {
 	var body testingBody
 	ctx.ReadJSON(&body)
 	validate := validator.New()
@@ -35,7 +35,7 @@ func (app *application) TestingRoute(ctx iris.Context) {
 		})
 		return
 	}
-	sshClient, err := app.client.Testing(client.ConnectOption{
+	sshClient, err := r.client.Testing(client.ConnectOption{
 		Host:       body.Host,
 		Port:       body.Port,
 		Username:   body.Username,

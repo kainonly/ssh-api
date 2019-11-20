@@ -1,16 +1,16 @@
-package application
+package router
 
 import (
 	"github.com/go-playground/validator/v10"
 	"github.com/kataras/iris/v12"
 )
 
-type deleteBody struct {
+type getBody struct {
 	Identity string `json:"identity" validate:"required"`
 }
 
-func (app *application) DeleteRoute(ctx iris.Context) {
-	var body deleteBody
+func (r *router) GetRoute(ctx iris.Context) {
+	var body getBody
 	ctx.ReadJSON(&body)
 	validate := validator.New()
 	if err := validate.Struct(body); err != nil {
@@ -20,11 +20,11 @@ func (app *application) DeleteRoute(ctx iris.Context) {
 		})
 		return
 	}
-	err := app.client.Delete(body.Identity)
+	content, err := r.client.Get(body.Identity)
 	if err == nil {
 		ctx.JSON(iris.Map{
 			"error": 0,
-			"msg":   "ok",
+			"data":  content,
 		})
 	} else {
 		ctx.JSON(iris.Map{

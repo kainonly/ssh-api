@@ -1,12 +1,12 @@
-package application
+package router
 
 import (
 	"github.com/kataras/iris/v12"
 )
 
-func (app *application) AllRoute(ctx iris.Context) {
+func (r *router) AllRoute(ctx iris.Context) {
 	var keys []string
-	for key := range app.client.GetClientOptions() {
+	for key := range r.client.GetClientOptions() {
 		keys = append(keys, key)
 	}
 	ctx.JSON(iris.Map{

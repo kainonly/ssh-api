@@ -1,16 +1,18 @@
-package application
+package router
 
 import (
 	"github.com/go-playground/validator/v10"
 	"github.com/kataras/iris/v12"
+	"ssh-api/client"
 )
 
-type getBody struct {
-	Identity string `json:"identity" validate:"required"`
+type tunnelsBody struct {
+	Identity string                `json:"identity" validate:"required"`
+	Tunnels  []client.TunnelOption `json:"tunnels" validate:"required,dive,required"`
 }
 
-func (app *application) GetRoute(ctx iris.Context) {
-	var body getBody
+func (r *router) TunnelsRoute(ctx iris.Context) {
+	var body tunnelsBody
 	ctx.ReadJSON(&body)
 	validate := validator.New()
 	if err := validate.Struct(body); err != nil {
@@ -20,11 +22,11 @@ func (app *application) GetRoute(ctx iris.Context) {
 		})
 		return
 	}
-	content, err := app.client.Get(body.Identity)
+	err := r.client.Tunnels(body.Identity, body.Tunnels)
 	if err == nil {
 		ctx.JSON(iris.Map{
 			"error": 0,
-			"data":  content,
+			"msg":   "ok",
 		})
 	} else {
 		ctx.JSON(iris.Map{
