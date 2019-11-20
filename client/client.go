@@ -2,14 +2,13 @@ package client
 
 import (
 	"golang.org/x/crypto/ssh"
-	"net"
 	"ssh-api/common"
 )
 
 type Client struct {
 	options       map[string]*ConnectOption
 	runtime       map[string]*ssh.Client
-	localListener map[string]*net.TCPListener
+	localListener *safeMapListener
 	error         chan common.Error
 }
 
@@ -20,7 +19,7 @@ func InjectClient() *Client {
 	return &Client{
 		options:       make(map[string]*ConnectOption),
 		runtime:       make(map[string]*ssh.Client),
-		localListener: make(map[string]*net.TCPListener),
+		localListener: newSafeMapListener(),
 		error:         channel,
 	}
 }
