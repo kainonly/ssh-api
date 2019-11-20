@@ -6,7 +6,6 @@ import (
 	"net"
 	"ssh-api/common"
 	"sync"
-	"time"
 )
 
 type TunnelOption struct {
@@ -24,69 +23,51 @@ func (c *Client) Tunnels(identity string, options []TunnelOption) (err error) {
 	for _, listener := range c.localListener.Map {
 		listener.Close()
 	}
-	if c.localListener != nil {
-		c.localListener = newSafeMapListener()
-	}
+	c.localListener = newSafeMapListener()
 	for _, tunnel := range options {
-		go c.setTunnel(identity, tunnel)
+		go c.mutilTunnel(identity, tunnel)
 	}
 	return
 }
 
-func (c *Client) setTunnel(identity string, option TunnelOption) {
-	addr := common.GetAddr(option.DstIp, option.DstPort)
+func (c *Client) mutilTunnel(identity string, option TunnelOption) {
+	localAddr := common.GetAddr(option.DstIp, option.DstPort)
 	remoteAddr := common.GetAddr(option.SrcIp, option.SrcPort)
-	localAddr, err := net.ResolveTCPAddr("tcp", addr)
+	localListener, err := net.Listen("tcp", localAddr)
 	if err != nil {
-		c.error <- common.SendError(identity, err)
-		return
-	}
-	localListener, err := net.ListenTCP("tcp", localAddr);
-	if err != nil {
-		c.error <- common.SendError(identity, err)
+		println("<" + identity + ">:" + err.Error())
 		return
 	} else {
 		c.localListener.Set(identity, localListener)
 	}
 	for {
-		localConn, err := c.localListener.Get(identity).AcceptTCP()
+		localConn, err := localListener.Accept()
 		if err != nil {
-			c.error <- common.SendError(identity, err)
+			println("<" + identity + ">:" + err.Error())
 			return
 		}
-		go c.transport(identity, localConn, remoteAddr)
+		go c.forward(identity, localConn, remoteAddr)
 	}
 }
 
 //  tunnel data to the remote server
-func (c *Client) transport(identity string, localConn *net.TCPConn, remoteAddr string) {
+func (c *Client) forward(identity string, localConn net.Conn, remoteAddr string) {
 	defer localConn.Close()
-	localConn.SetNoDelay(true)
-	localConn.SetKeepAlive(true)
-	localConn.SetKeepAlivePeriod(5 * time.Second)
 	remoteConn, err := c.runtime[identity].Dial("tcp", remoteAddr)
 	if err != nil {
-		c.error <- common.SendError(identity, err)
+		println("<" + identity + ">:" + err.Error())
 		return
 	}
 	defer remoteConn.Close()
 	var wg sync.WaitGroup
 	wg.Add(2)
-	go func() {
-		_, err := io.Copy(localConn, remoteConn)
-		if err != nil {
-			c.error <- common.SendError(identity, err)
-			return
-		}
+	go func(local net.Conn, remote net.Conn) {
+		io.Copy(remote, local)
 		wg.Done()
-	}()
-	go func() {
-		_, err := io.Copy(remoteConn, localConn)
-		if err != nil {
-			c.error <- common.SendError(identity, err)
-			return
-		}
+	}(localConn, remoteConn)
+	go func(local net.Conn, remote net.Conn) {
+		io.Copy(local, remote)
 		wg.Done()
-	}()
+	}(localConn, remoteConn)
 	wg.Wait()
 }
