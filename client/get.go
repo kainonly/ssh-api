@@ -18,12 +18,19 @@ func (c *Client) Get(identity string) (content Information, err error) {
 		return
 	}
 	option := c.options[identity]
+	var tunnels []TunnelOption
+	println(c.tunnels[identity])
+	if c.tunnels[identity] != nil {
+		tunnels = *c.tunnels[identity]
+	}
+
 	content = Information{
 		Identity:  identity,
 		Host:      option.Host,
 		Port:      option.Port,
 		Username:  option.Username,
 		Connected: string(c.runtime[identity].ClientVersion()),
+		Tunnels:   tunnels,
 	}
 	return
 }
