@@ -59,33 +59,33 @@ func (c *Client) mutilTunnel(identity string, option TunnelOption) {
 		} else {
 			c.localConn.Set(identity, localAddr, &localConn)
 		}
-		go c.forward(identity, localAddr, remoteAddr)
+		remoteConn, err := c.runtime[identity].Dial("tcp", remoteAddr)
+		if err != nil {
+			println("remote <" + identity + ">:" + err.Error())
+			return
+		} else {
+			c.remoteConn.Set(identity, localAddr, &remoteConn)
+		}
+		go c.forward(&localConn, &remoteConn)
 	}
 }
 
 //  tunnel data to the remote server
-func (c *Client) forward(identity string, localAddr string, remoteAddr string) {
-	localConn := *c.localConn.Get(identity, localAddr)
-	defer localConn.Close()
-	remoteConn, err := c.runtime[identity].Dial("tcp", remoteAddr)
-	if err != nil {
-		println("remote <" + identity + ">:" + err.Error())
-		return
-	} else {
-		c.remoteConn.Set(identity, localAddr, &remoteConn)
-	}
-	defer remoteConn.Close()
+func (c *Client) forward(local *net.Conn, remote *net.Conn) {
+	defer (*local).Close()
 	var wg sync.WaitGroup
 	wg.Add(2)
 	go func() {
 		defer wg.Done()
-		common.Copy(remoteConn, localConn)
+		common.Copy(*local, *remote)
 	}()
 	go func() {
 		defer wg.Done()
-		common.Copy(localConn, remoteConn)
+		if _, err := common.Copy(*remote, *local); err != nil {
+			(*local).Close()
+			(*remote).Close()
+		}
+		(*remote).Close()
 	}()
-	println("<finish-before>")
 	wg.Wait()
-	println("<finish-after>")
 }
