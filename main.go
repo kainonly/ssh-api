@@ -7,6 +7,7 @@ import (
 	"net/http"
 	_ "net/http/pprof"
 	"ssh-api/client"
+	"ssh-api/common"
 	"ssh-api/router"
 )
 
@@ -18,6 +19,7 @@ func main() {
 	app.Logger().SetLevel("debug")
 	app.Use(recover.New())
 	app.Use(logger.New())
+	common.InitBufPool()
 	routes := router.Init(
 		client.InjectClient(),
 	)

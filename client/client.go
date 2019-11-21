@@ -9,6 +9,7 @@ type Client struct {
 	runtime       map[string]*ssh.Client
 	localListener *safeMapListener
 	localConn     *safeMapConn
+	remoteConn    *safeMapConn
 }
 
 // Inject ssh client service
@@ -18,6 +19,7 @@ func InjectClient() *Client {
 		runtime:       make(map[string]*ssh.Client),
 		localListener: newSafeMapListener(),
 		localConn:     newSafeMapConn(),
+		remoteConn:    newSafeMapConn(),
 	}
 }
 

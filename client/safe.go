@@ -7,48 +7,56 @@ import (
 
 type safeMapListener struct {
 	sync.RWMutex
-	Map map[string]*net.Listener
+	Map map[string]map[string]*net.Listener
 }
 
 func newSafeMapListener() *safeMapListener {
 	listener := new(safeMapListener)
-	listener.Map = make(map[string]*net.Listener)
+	listener.Map = make(map[string]map[string]*net.Listener)
 	return listener
 }
 
-func (s *safeMapListener) Get(key string) *net.Listener {
-	s.RLock()
-	value := s.Map[key]
-	s.RUnlock()
-	return value
+func (s *safeMapListener) Clear(identity string) {
+	s.Map[identity] = make(map[string]*net.Listener)
 }
 
-func (s *safeMapListener) Set(key string, listener *net.Listener) {
+func (s *safeMapListener) Get(identity string, addr string) *net.Listener {
+	s.RLock()
+	listener := s.Map[identity][addr]
+	s.RUnlock()
+	return listener
+}
+
+func (s *safeMapListener) Set(identity string, addr string, listener *net.Listener) {
 	s.Lock()
-	s.Map[key] = listener
+	s.Map[identity][addr] = listener
 	s.Unlock()
 }
 
 type safeMapConn struct {
 	sync.RWMutex
-	Map map[string]*net.Conn
+	Map map[string]map[string]*net.Conn
 }
 
 func newSafeMapConn() *safeMapConn {
 	listener := new(safeMapConn)
-	listener.Map = make(map[string]*net.Conn)
+	listener.Map = make(map[string]map[string]*net.Conn)
 	return listener
 }
 
-func (s *safeMapConn) Get(key string) *net.Conn {
-	s.RLock()
-	value := s.Map[key]
-	s.RUnlock()
-	return value
+func (s *safeMapConn) Clear(identity string) {
+	s.Map[identity] = make(map[string]*net.Conn)
 }
 
-func (s *safeMapConn) Set(key string, conn *net.Conn) {
+func (s *safeMapConn) Get(identity string, addr string) *net.Conn {
+	s.RLock()
+	conn := s.Map[identity][addr]
+	s.RUnlock()
+	return conn
+}
+
+func (s *safeMapConn) Set(identity string, addr string, conn *net.Conn) {
 	s.Lock()
-	s.Map[key] = conn
+	s.Map[identity][addr] = conn
 	s.Unlock()
 }
