@@ -14,11 +14,13 @@ type TunnelOption struct {
 	DstPort uint   `json:"dst_port" validate:"required,numeric"`
 }
 
+// Tunnel setting
 func (c *Client) Tunnels(identity string, options []TunnelOption) (err error) {
 	if c.options[identity] == nil || c.runtime[identity] == nil {
 		err = errors.New("this identity does not exists")
 		return
 	}
+	c.tunnels[identity] = &options
 	c.closeTunnel(identity)
 	for _, tunnel := range options {
 		go c.mutilTunnel(identity, tunnel)
@@ -26,6 +28,7 @@ func (c *Client) Tunnels(identity string, options []TunnelOption) (err error) {
 	return
 }
 
+// Close all running tunnels to which the identity belongs
 func (c *Client) closeTunnel(identity string) {
 	for _, conn := range c.remoteConn.Map[identity] {
 		(*conn).Close()
@@ -41,6 +44,7 @@ func (c *Client) closeTunnel(identity string) {
 	c.localListener.Clear(identity)
 }
 
+// Multiple tunnel settings
 func (c *Client) mutilTunnel(identity string, option TunnelOption) {
 	localAddr := common.GetAddr(option.DstIp, option.DstPort)
 	remoteAddr := common.GetAddr(option.SrcIp, option.SrcPort)
@@ -70,7 +74,7 @@ func (c *Client) mutilTunnel(identity string, option TunnelOption) {
 	}
 }
 
-//  tunnel data to the remote server
+//  Tcp stream forwarding
 func (c *Client) forward(local *net.Conn, remote *net.Conn) {
 	defer (*local).Close()
 	var wg sync.WaitGroup
