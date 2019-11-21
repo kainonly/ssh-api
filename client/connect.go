@@ -3,7 +3,6 @@ package client
 import (
 	"golang.org/x/crypto/ssh"
 	"ssh-api/common"
-	"time"
 )
 
 type ConnectOption struct {
@@ -58,7 +57,6 @@ func (c *Client) connect(option ConnectOption) (client *ssh.Client, err error) {
 		User:            option.Username,
 		Auth:            auth,
 		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
-		Timeout:         time.Duration(3 * time.Second),
 	}
 	addr := common.GetAddr(option.Host, option.Port)
 	client, err = ssh.Dial("tcp", addr, &config)
