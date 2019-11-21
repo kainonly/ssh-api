@@ -85,5 +85,7 @@ func (c *Client) forward(identity string, localAddr string, remoteAddr string) {
 		defer wg.Done()
 		common.Copy(localConn, remoteConn)
 	}()
+	println("<finish-before>")
 	wg.Wait()
+	println("<finish-after>")
 }
