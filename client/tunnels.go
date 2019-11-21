@@ -2,7 +2,6 @@ package client
 
 import (
 	"errors"
-	"io"
 	"net"
 	"ssh-api/common"
 	"sync"
@@ -20,18 +19,26 @@ func (c *Client) Tunnels(identity string, options []TunnelOption) (err error) {
 		err = errors.New("this identity does not exists")
 		return
 	}
-	for _, conn := range c.localConn.Map {
-		(*conn).Close()
-	}
-	c.localConn = newSafeMapConn()
-	for _, listener := range c.localListener.Map {
-		(*listener).Close()
-	}
-	c.localListener = newSafeMapListener()
+	c.closeTunnel(identity)
 	for _, tunnel := range options {
 		go c.mutilTunnel(identity, tunnel)
 	}
 	return
+}
+
+func (c *Client) closeTunnel(identity string) {
+	for _, conn := range c.remoteConn.Map[identity] {
+		(*conn).Close()
+	}
+	c.remoteConn.Clear(identity)
+	for _, conn := range c.localConn.Map[identity] {
+		(*conn).Close()
+	}
+	c.localConn.Clear(identity)
+	for _, listener := range c.localListener.Map[identity] {
+		(*listener).Close()
+	}
+	c.localListener.Clear(identity)
 }
 
 func (c *Client) mutilTunnel(identity string, option TunnelOption) {
@@ -42,7 +49,7 @@ func (c *Client) mutilTunnel(identity string, option TunnelOption) {
 		println("<" + identity + ">:" + err.Error())
 		return
 	} else {
-		c.localListener.Set(identity, &localListener)
+		c.localListener.Set(identity, localAddr, &localListener)
 	}
 	for {
 		localConn, err := localListener.Accept()
@@ -50,31 +57,35 @@ func (c *Client) mutilTunnel(identity string, option TunnelOption) {
 			println("<" + identity + ">:" + err.Error())
 			return
 		} else {
-			c.localConn.Set(identity, &localConn)
+			c.localConn.Set(identity, localAddr, &localConn)
 		}
-		go c.forward(identity, remoteAddr)
+		go c.forward(identity, localAddr, remoteAddr)
 	}
 }
 
 //  tunnel data to the remote server
-func (c *Client) forward(identity string, remoteAddr string) {
-	localConn := *c.localConn.Get(identity)
+func (c *Client) forward(identity string, localAddr string, remoteAddr string) {
+	localConn := *c.localConn.Get(identity, localAddr)
 	defer localConn.Close()
 	remoteConn, err := c.runtime[identity].Dial("tcp", remoteAddr)
 	if err != nil {
 		println("remote <" + identity + ">:" + err.Error())
 		return
+	} else {
+		c.remoteConn.Set(identity, localAddr, &remoteConn)
 	}
 	defer remoteConn.Close()
 	var wg sync.WaitGroup
 	wg.Add(2)
-	go func(local net.Conn, remote net.Conn) {
-		io.Copy(remote, local)
-		wg.Done()
-	}(localConn, remoteConn)
-	go func(local net.Conn, remote net.Conn) {
-		io.Copy(local, remote)
-		wg.Done()
-	}(localConn, remoteConn)
+	go func() {
+		defer wg.Done()
+		common.Copy(remoteConn, localConn)
+	}()
+	go func() {
+		defer wg.Done()
+		common.Copy(localConn, remoteConn)
+	}()
+	println("<finish-1>")
 	wg.Wait()
+	println("<finish-2>")
 }

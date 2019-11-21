@@ -15,6 +15,10 @@ func (c *Client) Put(identity string, option ConnectOption) (err error) {
 	if err != nil {
 		return
 	}
+	c.closeTunnel(identity)
+	if c.runtime[identity] != nil {
+		c.runtime[identity].Close()
+	}
 	var wg sync.WaitGroup
 	wg.Add(1)
 	go func() {
