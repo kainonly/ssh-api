@@ -3,12 +3,12 @@ package router
 import (
 	"github.com/go-playground/validator/v10"
 	"github.com/kataras/iris/v12"
-	"ssh-api/client"
+	"ssh-api/common"
 )
 
 type tunnelsBody struct {
 	Identity string                `json:"identity" validate:"required"`
-	Tunnels  []client.TunnelOption `json:"tunnels" validate:"required,dive,required"`
+	Tunnels  []common.TunnelOption `json:"tunnels" validate:"required,dive,required"`
 }
 
 func (r *router) TunnelsRoute(ctx iris.Context) {
@@ -22,7 +22,7 @@ func (r *router) TunnelsRoute(ctx iris.Context) {
 		})
 		return
 	}
-	err := r.client.Tunnels(body.Identity, body.Tunnels)
+	err := r.client.SetTunnels(body.Identity, body.Tunnels)
 	if err == nil {
 		ctx.JSON(iris.Map{
 			"error": 0,

@@ -5,17 +5,8 @@ import (
 	"ssh-api/common"
 )
 
-type ConnectOption struct {
-	Host       string
-	Port       uint
-	Username   string
-	Password   string
-	Key        []byte
-	PassPhrase []byte
-}
-
 // Generate AuthMethod
-func (c *Client) authMethod(option ConnectOption) (auth []ssh.AuthMethod, err error) {
+func (c *Client) authMethod(option common.ConnectOption) (auth []ssh.AuthMethod, err error) {
 	if option.Key == nil {
 		// Password AuthMethod
 		auth = []ssh.AuthMethod{
@@ -48,7 +39,7 @@ func (c *Client) authMethod(option ConnectOption) (auth []ssh.AuthMethod, err er
 }
 
 // Ssh client connection
-func (c *Client) connect(option ConnectOption) (client *ssh.Client, err error) {
+func (c *Client) connect(option common.ConnectOption) (client *ssh.Client, err error) {
 	auth, err := c.authMethod(option)
 	if err != nil {
 		return

@@ -7,15 +7,8 @@ import (
 	"sync"
 )
 
-type TunnelOption struct {
-	SrcIp   string `json:"src_ip" validate:"required,ip"`
-	SrcPort uint   `json:"src_port" validate:"required,numeric"`
-	DstIp   string `json:"dst_ip" validate:"required,ip"`
-	DstPort uint   `json:"dst_port" validate:"required,numeric"`
-}
-
 // Tunnel setting
-func (c *Client) Tunnels(identity string, options []TunnelOption) (err error) {
+func (c *Client) SetTunnels(identity string, options []common.TunnelOption) (err error) {
 	if c.options[identity] == nil || c.runtime[identity] == nil {
 		err = errors.New("this identity does not exists")
 		return
@@ -25,6 +18,10 @@ func (c *Client) Tunnels(identity string, options []TunnelOption) (err error) {
 	for _, tunnel := range options {
 		go c.mutilTunnel(identity, tunnel)
 	}
+	err = common.Temporary(common.ConfigOption{
+		Connect: c.options,
+		Tunnel:  c.tunnels,
+	})
 	return
 }
 
@@ -45,7 +42,7 @@ func (c *Client) closeTunnel(identity string) {
 }
 
 // Multiple tunnel settings
-func (c *Client) mutilTunnel(identity string, option TunnelOption) {
+func (c *Client) mutilTunnel(identity string, option common.TunnelOption) {
 	localAddr := common.GetAddr(option.DstIp, option.DstPort)
 	remoteAddr := common.GetAddr(option.SrcIp, option.SrcPort)
 	localListener, err := net.Listen("tcp", localAddr)

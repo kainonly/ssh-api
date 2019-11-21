@@ -19,6 +19,7 @@ func main() {
 	app.Logger().SetLevel("debug")
 	app.Use(recover.New())
 	app.Use(logger.New())
+	common.InitLevelDB("data")
 	common.InitBufPool()
 	routes := router.Init(
 		client.InjectClient(),
