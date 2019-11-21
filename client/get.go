@@ -1,14 +1,17 @@
 package client
 
-import "errors"
+import (
+	"errors"
+	"ssh-api/common"
+)
 
 type Information struct {
-	Identity  string         `json:"identity"`
-	Host      string         `json:"host"`
-	Port      uint           `json:"port"`
-	Username  string         `json:"username"`
-	Connected string         `json:"connected"`
-	Tunnels   []TunnelOption `json:"tunnels"`
+	Identity  string                `json:"identity"`
+	Host      string                `json:"host"`
+	Port      uint                  `json:"port"`
+	Username  string                `json:"username"`
+	Connected string                `json:"connected"`
+	Tunnels   []common.TunnelOption `json:"tunnels"`
 }
 
 // Get ssh client information
@@ -18,7 +21,7 @@ func (c *Client) Get(identity string) (content Information, err error) {
 		return
 	}
 	option := c.options[identity]
-	var tunnels []TunnelOption
+	var tunnels []common.TunnelOption
 	println(c.tunnels[identity])
 	if c.tunnels[identity] != nil {
 		tunnels = *c.tunnels[identity]

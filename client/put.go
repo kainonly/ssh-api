@@ -1,16 +1,17 @@
 package client
 
 import (
+	"ssh-api/common"
 	"sync"
 )
 
 type ConnectOptionWithIdentity struct {
 	Identity string
-	ConnectOption
+	common.ConnectOption
 }
 
 // Add or modify the ssh client
-func (c *Client) Put(identity string, option ConnectOption) (err error) {
+func (c *Client) Put(identity string, option common.ConnectOption) (err error) {
 	err = c.Delete(identity)
 	if err != nil {
 		return
@@ -30,5 +31,9 @@ func (c *Client) Put(identity string, option ConnectOption) (err error) {
 		}
 	}()
 	wg.Wait()
+	err = common.Temporary(common.ConfigOption{
+		Connect: c.options,
+		Tunnel:  c.tunnels,
+	})
 	return
 }
