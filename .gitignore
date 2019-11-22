@@ -22,5 +22,6 @@
 !.vscode/extensions.json
 
 data
+dist
 go.sum
 debug.json
