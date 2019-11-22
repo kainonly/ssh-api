@@ -7,7 +7,6 @@ import (
 	"net"
 	"net/http"
 	_ "net/http/pprof"
-	"ssh-api/client"
 	"ssh-api/common"
 	"ssh-api/testing"
 	"sync"
@@ -16,7 +15,7 @@ import (
 
 var (
 	localListener map[string]*net.TCPListener
-	tunnels       = []client.TunnelOption{
+	tunnels       = []common.TunnelOption{
 		{
 			SrcIp:   "127.0.0.1",
 			SrcPort: 5601,
@@ -50,7 +49,7 @@ func main() {
 	http.ListenAndServe(":6060", nil)
 }
 
-func setTunnel(client *ssh.Client, tunnel client.TunnelOption) {
+func setTunnel(client *ssh.Client, tunnel common.TunnelOption) {
 	addr := common.GetAddr(tunnel.DstIp, tunnel.DstPort)
 	remoteAddr := common.GetAddr(tunnel.SrcIp, tunnel.SrcPort)
 	localAddr, err := net.ResolveTCPAddr("tcp", addr)

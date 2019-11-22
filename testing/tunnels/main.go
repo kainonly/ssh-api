@@ -5,20 +5,19 @@ import (
 	"net"
 	"net/http"
 	_ "net/http/pprof"
-	"ssh-api/client"
 	"ssh-api/common"
 	"ssh-api/testing"
 	"sync"
 )
 
 var (
-	elastic = client.TunnelOption{
+	elastic = common.TunnelOption{
 		SrcIp:   "127.0.0.1",
 		SrcPort: 9200,
 		DstIp:   "127.0.0.1",
 		DstPort: 9200,
 	}
-	mysql = client.TunnelOption{
+	mysql = common.TunnelOption{
 		SrcIp:   "127.0.0.1",
 		SrcPort: 3306,
 		DstIp:   "127.0.0.1",

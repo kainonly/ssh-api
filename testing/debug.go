@@ -6,6 +6,7 @@ import (
 	"golang.org/x/crypto/ssh"
 	"io/ioutil"
 	"ssh-api/client"
+	"ssh-api/common"
 )
 
 type DebugOption struct {
@@ -17,7 +18,7 @@ type DebugOption struct {
 	PassPhrase string `json:"passphrase"`
 }
 
-func GetDebugOption(filename string) (option client.ConnectOption, err error) {
+func GetDebugOption(filename string) (option common.ConnectOption, err error) {
 	debug, err := ioutil.ReadFile(filename)
 	if err != nil {
 		return
@@ -30,7 +31,7 @@ func GetDebugOption(filename string) (option client.ConnectOption, err error) {
 	if err != nil {
 		return
 	}
-	option = client.ConnectOption{
+	option = common.ConnectOption{
 		Host:       debugOption.Host,
 		Port:       debugOption.Port,
 		Username:   debugOption.Username,
