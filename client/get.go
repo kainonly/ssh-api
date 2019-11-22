@@ -22,11 +22,9 @@ func (c *Client) Get(identity string) (content Information, err error) {
 	}
 	option := c.options[identity]
 	var tunnels []common.TunnelOption
-	println(c.tunnels[identity])
 	if c.tunnels[identity] != nil {
 		tunnels = *c.tunnels[identity]
 	}
-
 	content = Information{
 		Identity:  identity,
 		Host:      option.Host,
