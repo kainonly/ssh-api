@@ -6,4 +6,4 @@ go:
 services:
   - docker
 
-script: ci
+script: bash ci
