@@ -6,6 +6,8 @@ services:
 go:
   - master
 
+script: false
+
 deploy:
   - provider: script
     script: sh scripts/ci-default.sh
