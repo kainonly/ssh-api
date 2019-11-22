@@ -85,6 +85,7 @@ func Copy(dst io.Writer, src io.Reader) (written int64, err error) {
 	return written, err
 }
 
+// Initialize leveldb
 func InitLevelDB(path string) {
 	var err error
 	db, err = leveldb.OpenFile(path, nil)
@@ -93,12 +94,14 @@ func InitLevelDB(path string) {
 	}
 }
 
+// Set up temporary storage
 func SetTemporary(config ConfigOption) (err error) {
 	data, err := json.Marshal(config)
 	err = db.Put([]byte("temporary"), data, nil)
 	return
 }
 
+// Get temporary storage
 func GetTemporary() (config ConfigOption, err error) {
 	exists, err := db.Has([]byte("temporary"), nil)
 	if exists == false {
