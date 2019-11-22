@@ -6,4 +6,8 @@ go:
 services:
   - docker
 
-script: bash ci
+deploy:
+  provider: script
+  script: bash scripts/ci
+  on:
+    branch: master
