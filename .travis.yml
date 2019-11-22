@@ -3,5 +3,7 @@ language: go
 go:
   - master
 
-script:
-  - go build main.go
+services:
+  - docker
+
+script: ci

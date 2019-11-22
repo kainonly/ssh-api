@@ -1,0 +1,12 @@
+#!/bin/bash
+# Build Golang Application
+echo go build main.go
+
+# Login docker
+echo "${DOCKER_PASSWORD}" | docker login -u "${DOCKER_USERNAME}" --password-stdin
+
+# Build docker image
+echo docker build . -t ssh-api
+
+# Push docker image
+docker push ssh-api
