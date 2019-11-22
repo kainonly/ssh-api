@@ -187,19 +187,19 @@ Private key connect
 {
     "error": 0,
     "data": {
-    "identity": "test",
-    "host": "imac",
-    "port": 22,
-    "username": "root",
-    "connected": "SSH-2.0-Go",
-    "tunnels": [
-        {
-            "src_ip": "127.0.0.1",
-            "src_port": 5601,
-            "dst_ip": "127.0.0.1",
-            "dst_port": 5601
-        }
-    ]
+        "identity": "test",
+        "host": "imac",
+        "port": 22,
+        "username": "root",
+        "connected": "SSH-2.0-Go",
+        "tunnels": [
+            {
+                "src_ip": "127.0.0.1",
+                "src_port": 5601,
+                "dst_ip": "127.0.0.1",
+                "dst_port": 5601
+            }
+        ]
     }
 }
 ```
