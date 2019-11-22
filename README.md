@@ -47,10 +47,10 @@ Password connect
 
 ```json
 {
-	"host":"imac",
-	"port":22,
-	"username":"root",
-	"password":"123456"
+    "host":"imac",
+    "port":22,
+    "username":"root",
+    "password":"123456"
 }
 ```
 
@@ -58,10 +58,10 @@ Private key connect
 
 ```json
 {
-	"host":"imac",
-	"port":22,
-	"username":"root",
-	"private_key":"LS0tL.......tFWS0tLS0tCg=="
+    "host":"imac",
+    "port":22,
+    "username":"root",
+    "private_key":"LS0tL.......tFWS0tLS0tCg=="
 }
 ```
 
@@ -92,10 +92,10 @@ Private key connect
 ```json
 {
     "identity":"test",
-	"host":"imac",
-	"port":22,
-	"username":"root",
-	"private_key":"LS0tL.......tFWS0tLS0tCg=="
+    "host":"imac",
+    "port":22,
+    "username":"root",
+    "private_key":"LS0tL.......tFWS0tLS0tCg=="
 }
 ```
 
@@ -120,8 +120,8 @@ Private key connect
 
 ```json
 {
-	"identity":"test",
-	"bash":"uptime"
+    "identity":"test",
+    "bash":"uptime"
 }
 ```
 
@@ -131,8 +131,8 @@ Private key connect
 
 ```json
 {
-    "data": " 09:42:22 up 9 days, 23:43,  1 user,  load average: 0.26, 0.22, 0.19\n",
-    "error": 0
+    "error": 0,
+    "data": " 09:42:22 up 9 days, 23:43,  1 user,  load average: 0.26, 0.22, 0.19\n"
 }
 ```
 
@@ -145,7 +145,7 @@ Private key connect
 
 ```json
 {
-	"identity":"test"
+    "identity":"test"
 }
 ```
 
@@ -169,7 +169,7 @@ Private key connect
 
 ```json
 {
-	"identity":"test"
+    "identity":"test"
 }
 ```
 
@@ -185,22 +185,22 @@ Private key connect
 
 ```json
 {
+    "error": 0,
     "data": {
-        "identity": "test",
-        "host": "imac",
-        "port": 22,
-        "username": "root",
-        "connected": "SSH-2.0-Go",
-        "tunnels": [
-            {
-                "src_ip": "127.0.0.1",
-                "src_port": 5601,
-                "dst_ip": "127.0.0.1",
-                "dst_port": 5601
-            }
-        ]
-    },
-    "error": 0
+    "identity": "test",
+    "host": "imac",
+    "port": 22,
+    "username": "root",
+    "connected": "SSH-2.0-Go",
+    "tunnels": [
+        {
+            "src_ip": "127.0.0.1",
+            "src_port": 5601,
+            "dst_ip": "127.0.0.1",
+            "dst_port": 5601
+        }
+    ]
+    }
 }
 ```
 
@@ -211,10 +211,10 @@ Private key connect
 
 ```json
 {
+    "error": 0,
     "data": [
         "test"
-    ],
-    "error": 0
+    ]
 }
 ```
 
@@ -227,7 +227,7 @@ Private key connect
 
 ```json
 {
-	"identity":["test"]
+    "identity":["test"]
 }
 ```
 
@@ -243,6 +243,7 @@ Private key connect
 
 ```json
 {
+    "error": 0,
     "data": [
         {
             "identity": "test",
@@ -252,15 +253,14 @@ Private key connect
             "connected": "SSH-2.0-Go",
             "tunnels": [
                 {
-                    "src_ip": "127.0.0.1",
-                    "src_port": 5601,
-                    "dst_ip": "127.0.0.1",
-                    "dst_port": 5601
+                "src_ip": "127.0.0.1",
+                "src_port": 5601,
+                "dst_ip": "127.0.0.1",
+                "dst_port": 5601
                 }
             ]
         }
-    ],
-    "error": 0
+    ]
 }
 ```
 
@@ -278,21 +278,21 @@ Private key connect
 
 ```json
 {
-	"identity":"test",
-	"tunnels":[
-		{
-			"src_ip":"127.0.0.1",
-			"src_port":3306,
-			"dst_ip":"127.0.0.1",
-			"dst_port":3306
-		},
-		{
-			"src_ip":"127.0.0.1",
-			"src_port":9200,
-			"dst_ip":"127.0.0.1",
-			"dst_port":9200
-		}
-	]
+    "identity":"test",
+    "tunnels":[
+        {
+            "src_ip":"127.0.0.1",
+            "src_port":3306,
+            "dst_ip":"127.0.0.1",
+            "dst_port":3306
+        },
+        {
+            "src_ip":"127.0.0.1",
+            "src_port":9200,
+            "dst_ip":"127.0.0.1",
+            "dst_port":9200
+        }
+    ]
 }
 ```
 
