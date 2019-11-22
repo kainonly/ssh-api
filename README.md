@@ -125,10 +125,15 @@ Private key connect
 }
 ```
 
-- response `application/octet-stream`
+- response
+  - **error** `number` status
+  - **data** `string` Message
 
-```
-10:38:39 up 12 days, 19:34,  1 user,  load average: 0.11, 0.09, 0.06
+```json
+{
+    "data": " 09:42:22 up 9 days, 23:43,  1 user,  load average: 0.26, 0.22, 0.19\n",
+    "error": 0
+}
 ```
 
 #### Delete SSH
@@ -175,22 +180,27 @@ Private key connect
     - **host** `string`
     - **port** `number`
     - **username** `string`
-    - **connected** `boolean` ssh connected status
+    - **connected** `string` ssh connected client version
     - **tunnels** `array` ssh tunnels set
-    - **tunnelsListening** `array` running tunnels
 
 ```json
 {
-    "error": 0,
     "data": {
         "identity": "test",
-        "host": "192.168.1.102",
+        "host": "imac",
         "port": 22,
         "username": "root",
-        "connected": true,
-        "tunnels": [],
-        "tunnelsListening": []
-    }
+        "connected": "SSH-2.0-Go",
+        "tunnels": [
+            {
+                "src_ip": "127.0.0.1",
+                "src_port": 5601,
+                "dst_ip": "127.0.0.1",
+                "dst_port": 5601
+            }
+        ]
+    },
+    "error": 0
 }
 ```
 
@@ -198,6 +208,15 @@ Private key connect
 
 - url `/all`
 - method `POST`
+
+```json
+{
+    "data": [
+        "test"
+    ],
+    "error": 0
+}
+```
 
 #### Lists SSH
 
@@ -219,33 +238,29 @@ Private key connect
     - **host** `string`
     - **port** `number`
     - **username** `string`
-    - **connected** `boolean` ssh connected status
+    - **connected** `string` ssh connected client version
     - **tunnels** `array` ssh tunnels set
-    - **tunnelsListening** `array` running tunnels
 
 ```json
 {
-    "error": 0,
     "data": [
         {
             "identity": "test",
-            "host": "192.168.1.102",
+            "host": "imac",
             "port": 22,
             "username": "root",
-            "connected": true,
+            "connected": "SSH-2.0-Go",
             "tunnels": [
-                [
-                    "127.0.0.1",
-                    27017,
-                    "127.0.0.1",
-                    27017
-                ]
-            ],
-            "tunnelsListening": [
-                true
+                {
+                    "src_ip": "127.0.0.1",
+                    "src_port": 5601,
+                    "dst_ip": "127.0.0.1",
+                    "dst_port": 5601
+                }
             ]
         }
-    ]
+    ],
+    "error": 0
 }
 ```
 
@@ -255,13 +270,28 @@ Private key connect
 - method `POST`
 - body
   - **identity** `string` ssh identity code
-  - **tunnels** `array`, tunnel config `[<srcIp>,<srcPort>,<dstIP>,<dstPort>]`
+  - **tunnels** `array` tunnels options
+    - **src_ip** `string` origin ip
+    - **src_port** `int` origin port
+    - **dst_ip** `string` target ip
+    - **dst_port** `int` target port
 
 ```json
 {
 	"identity":"test",
 	"tunnels":[
-		["127.0.0.1",27017,"127.0.0.1",27017]
+		{
+			"src_ip":"127.0.0.1",
+			"src_port":3306,
+			"dst_ip":"127.0.0.1",
+			"dst_port":3306
+		},
+		{
+			"src_ip":"127.0.0.1",
+			"src_port":9200,
+			"dst_ip":"127.0.0.1",
+			"dst_port":9200
+		}
 	]
 }
 ```
