@@ -2,6 +2,7 @@ package client
 
 import (
 	"golang.org/x/crypto/ssh"
+	"log"
 	"ssh-api/common"
 )
 
@@ -16,14 +17,36 @@ type Client struct {
 
 // Inject ssh client service
 func InjectClient() *Client {
-	return &Client{
-		options:       make(map[string]*common.ConnectOption),
-		tunnels:       make(map[string]*[]common.TunnelOption),
-		runtime:       make(map[string]*ssh.Client),
-		localListener: newSafeMapListener(),
-		localConn:     newSafeMapConn(),
-		remoteConn:    newSafeMapConn(),
+	sshClient := new(Client)
+	sshClient.options = make(map[string]*common.ConnectOption)
+	sshClient.tunnels = make(map[string]*[]common.TunnelOption)
+	sshClient.runtime = make(map[string]*ssh.Client)
+	sshClient.localListener = newSafeMapListener()
+	sshClient.localConn = newSafeMapConn()
+	sshClient.remoteConn = newSafeMapConn()
+	configs, err := common.GetTemporary()
+	if err != nil {
+		log.Fatalln(err)
 	}
+	if configs.Connect != nil {
+		sshClient.options = configs.Connect
+	}
+	for identity, option := range configs.Connect {
+		err = sshClient.Put(identity, *option)
+		if err != nil {
+			log.Fatalln(err)
+		}
+	}
+	if configs.Tunnel != nil {
+		sshClient.tunnels = configs.Tunnel
+	}
+	for identity, options := range configs.Tunnel {
+		err = sshClient.SetTunnels(identity, *options)
+		if err != nil {
+			log.Fatalln(err)
+		}
+	}
+	return sshClient
 }
 
 // Get Client Options

@@ -5,18 +5,15 @@ import (
 	"sync"
 )
 
-type ConnectOptionWithIdentity struct {
-	Identity string
-	common.ConnectOption
-}
-
 // Add or modify the ssh client
 func (c *Client) Put(identity string, option common.ConnectOption) (err error) {
 	err = c.Delete(identity)
 	if err != nil {
 		return
 	}
-	c.closeTunnel(identity)
+	if c.tunnels[identity] != nil {
+		c.closeTunnel(identity)
+	}
 	if c.runtime[identity] != nil {
 		c.runtime[identity].Close()
 	}
@@ -31,7 +28,7 @@ func (c *Client) Put(identity string, option common.ConnectOption) (err error) {
 		}
 	}()
 	wg.Wait()
-	err = common.Temporary(common.ConfigOption{
+	err = common.SetTemporary(common.ConfigOption{
 		Connect: c.options,
 		Tunnel:  c.tunnels,
 	})

@@ -18,6 +18,10 @@ type (
 		Key        []byte `json:"key"`
 		PassPhrase []byte `json:"pass_phrase"`
 	}
+	ConnectOptionWithIdentity struct {
+		Identity string `json:"identity"`
+		ConnectOption
+	}
 	TunnelOption struct {
 		SrcIp   string `json:"src_ip" validate:"required,ip"`
 		SrcPort uint   `json:"src_port" validate:"required,numeric"`
@@ -25,7 +29,7 @@ type (
 		DstPort uint   `json:"dst_port" validate:"required,numeric"`
 	}
 	ConfigOption struct {
-		Connect map[string]*ConnectOption `json:"connect"`
+		Connect map[string]*ConnectOption  `json:"connect"`
 		Tunnel  map[string]*[]TunnelOption `json:"tunnel"`
 	}
 )
@@ -89,9 +93,20 @@ func InitLevelDB(path string) {
 	}
 }
 
-func Temporary(config ConfigOption) (err error) {
+func SetTemporary(config ConfigOption) (err error) {
 	data, err := json.Marshal(config)
 	err = db.Put([]byte("temporary"), data, nil)
+	return
+}
+
+func GetTemporary() (config ConfigOption, err error) {
+	exists, err := db.Has([]byte("temporary"), nil)
+	if exists == false {
+		config = ConfigOption{}
+		return
+	}
+	data, err := db.Get([]byte("temporary"), nil)
+	err = json.Unmarshal(data, &config)
 	return
 }
 

@@ -13,12 +13,14 @@ func (c *Client) SetTunnels(identity string, options []common.TunnelOption) (err
 		err = errors.New("this identity does not exists")
 		return
 	}
+	if c.tunnels[identity] != nil {
+		c.closeTunnel(identity)
+	}
 	c.tunnels[identity] = &options
-	c.closeTunnel(identity)
 	for _, tunnel := range options {
 		go c.mutilTunnel(identity, tunnel)
 	}
-	err = common.Temporary(common.ConfigOption{
+	err = common.SetTemporary(common.ConfigOption{
 		Connect: c.options,
 		Tunnel:  c.tunnels,
 	})
