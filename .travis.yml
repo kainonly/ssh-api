@@ -1,9 +1,17 @@
 language: go
 
-go:
-  - master
-
 services:
   - docker
 
-script: sh scripts/ci
+go:
+  - master
+
+deploy:
+  - provider: script
+    script: sh scripts/ci-default.sh
+    on:
+      branch: master
+  - provider: script
+    script: sh scripts/ci-tag.sh
+    on:
+      tags: true

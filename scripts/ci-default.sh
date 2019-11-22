@@ -6,4 +6,4 @@ go build -o dist/ssh-api
 # Build docker image
 docker build . -t ssh-api
 # Push docker image
-docker push ssh-api
+docker push ssh-api:latest
