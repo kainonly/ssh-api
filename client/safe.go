@@ -5,10 +5,16 @@ import (
 	"sync"
 )
 
-type safeMapListener struct {
-	sync.RWMutex
-	Map map[string]map[string]*net.Listener
-}
+type (
+	safeMapListener struct {
+		sync.RWMutex
+		Map map[string]map[string]*net.Listener
+	}
+	safeMapConn struct {
+		sync.RWMutex
+		Map map[string]map[string]*net.Conn
+	}
+)
 
 func newSafeMapListener() *safeMapListener {
 	listener := new(safeMapListener)
@@ -31,11 +37,6 @@ func (s *safeMapListener) Set(identity string, addr string, listener *net.Listen
 	s.Lock()
 	s.Map[identity][addr] = listener
 	s.Unlock()
-}
-
-type safeMapConn struct {
-	sync.RWMutex
-	Map map[string]map[string]*net.Conn
 }
 
 func newSafeMapConn() *safeMapConn {

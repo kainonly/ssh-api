@@ -1,17 +1,22 @@
-package main
+package example
 
 import (
 	"github.com/kataras/iris/v12"
 	"github.com/kataras/iris/v12/middleware/logger"
 	"github.com/kataras/iris/v12/middleware/recover"
+	"net/http"
+	_ "net/http/pprof"
 	"ssh-api/client"
 	"ssh-api/common"
 	"ssh-api/router"
 )
 
 func main() {
+	go func() {
+		http.ListenAndServe(":6060", nil)
+	}()
 	app := iris.New()
-	app.Logger().SetLevel("error")
+	app.Logger().SetLevel("debug")
 	app.Use(recover.New())
 	app.Use(logger.New())
 	common.InitLevelDB("data")
