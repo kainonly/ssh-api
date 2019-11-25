@@ -2,9 +2,10 @@
 
 ssh server api
 
+[![GitHub go.mod Go version](https://img.shields.io/github/go-mod/go-version/kainonly/ssh-api?style=flat-square)](https://github.com/kainonly/ssh-api)
+[![Travis](https://img.shields.io/travis/kainonly/ssh-api?style=flat-square)](https://www.travis-ci.org/kainonly/ssh-api)
+[![Coverage Status](https://img.shields.io/coveralls/github/kainonly/ssh-api?style=flat-square)](https://coveralls.io/github/kainonly/ssh-api?branch=master)
 [![Docker Pulls](https://img.shields.io/docker/pulls/kainonly/ssh-api.svg?style=flat-square)](https://hub.docker.com/r/kainonly/ssh-api)
-[![Docker Cloud Automated build](https://img.shields.io/docker/cloud/automated/kainonly/ssh-api.svg?style=flat-square)](https://hub.docker.com/r/kainonly/ssh-api)
-[![Docker Cloud Build Status](https://img.shields.io/docker/cloud/build/kainonly/ssh-api.svg?style=flat-square)](https://hub.docker.com/r/kainonly/ssh-api)
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](https://raw.githubusercontent.com/kainonly/ssh-api/master/LICENSE)
 
 ```shell
